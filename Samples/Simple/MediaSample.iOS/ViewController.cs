@@ -2,7 +2,6 @@
 using Plugin.MediaManager;
 using Plugin.MediaManager.Abstractions;
 using Plugin.MediaManager.Abstractions.Implementations;
-using Plugin.MediaManager.iOS;
 using UIKit;
 
 namespace MediaSample.iOS
@@ -21,7 +20,7 @@ namespace MediaSample.iOS
             base.ViewDidLoad();
 			_videoSurface = new VideoSurface();
 			VideoView.Add(_videoSurface);
-			CrossMediaManager.Current.VideoPlayer.SetVideoSurface(_videoSurface);
+			CrossMediaManager.Current.VideoPlayer.RenderSurface = _videoSurface;
 			CrossMediaManager.Current.PlayingChanged += (sender, e) => ProgressView.Progress = (float)e.Progress;
 
             // Perform any additional setup after loading the view, typically from a nib.
