@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using Plugin.MediaManager.Abstractions.Enums;
 using Plugin.MediaManager.Abstractions.EventArguments;
 using Plugin.MediaManager.Abstractions.Implementations;
 
@@ -34,7 +35,7 @@ namespace Plugin.MediaManager.Abstractions
         /// <summary>
         /// Activates or deactivates the Repeat option
         /// </summary>
-        RepeatType Repeat { get; }
+        RepeatType Repeat { get; set; }
 
         /// <summary>
         /// Activates or deactivates the Shuffle option
@@ -74,7 +75,7 @@ namespace Plugin.MediaManager.Abstractions
         /// <summary>
         /// Turns on or off repeat.
         /// </summary>
-        void ToggleRepeat(RepeatType repeatType);
+        void ToggleRepeat();
     }
 }
 
