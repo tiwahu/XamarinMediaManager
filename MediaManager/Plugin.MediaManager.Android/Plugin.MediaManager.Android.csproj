@@ -87,6 +87,16 @@
     <Compile Include="Audio\RemoteControlBroadcastReceiver.cs" />
     <Compile Include="Audio\AudioPlayerBroadcastReceiver.cs" />
     <Compile Include="VolumeManagerImplementation.cs" />
+    <Compile Include="MediaCompat\AudioPlayerBroadcastReceiver.cs" />
+    <Compile Include="MediaCompat\LocalPlayback.cs" />
+    <Compile Include="MediaCompat\MediaNotificationManager.cs" />
+    <Compile Include="MediaCompat\MediaSessionCallback.cs" />
+    <Compile Include="MediaCompat\MusicProvider.cs" />
+    <Compile Include="MediaCompat\MusicService.cs" />
+    <Compile Include="MediaCompat\Playback.cs" />
+    <Compile Include="MediaCompat\PlaybackManager.cs" />
+    <Compile Include="MediaCompat\PlaybackServiceCallback.cs" />
+    <Compile Include="MediaCompat\QueueManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
