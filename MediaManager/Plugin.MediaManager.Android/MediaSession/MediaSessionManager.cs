@@ -26,15 +26,18 @@ namespace Plugin.MediaManager.MediaSession
 
         internal int MediaPlayerState => mediaControllerCompat?.PlaybackState?.State ?? PlaybackStateCompat.StateNone;
 
-        internal MediaSessionCompat CurrentSession => mediaSessionCompat;
+        public MediaSessionCompat CurrentSession => mediaSessionCompat;
 
         internal Context ApplicationContext => applicationContext;
 
         internal ComponentName RemoteComponentName { get; set; }
+
+        private Type _serviceType;
       
-        public MediaSessionManager(Context appContext)
+        public MediaSessionManager(Context appContext, Type serviceType)
         {
             applicationContext = appContext;
+            _serviceType = serviceType;
         }
 
         internal void InitMediaSession(string packageName, MediaServiceBinder binder)
@@ -49,11 +52,11 @@ namespace Plugin.MediaManager.MediaSession
                     RemoteComponentName = new ComponentName(packageName, new RemoteControlBroadcastReceiver().ComponentName);
                     mediaSessionCompat = new MediaSessionCompat(applicationContext, "XamarinStreamingAudio", RemoteComponentName, pIntent);
                     mediaControllerCompat = new MediaControllerCompat(applicationContext, mediaSessionCompat.SessionToken);
+                    NotificationManager = new MediaNotificationManagerImplementation(applicationContext, CurrentSession.SessionToken, _serviceType);
                 }
                 mediaSessionCompat.Active = true;
-                //mediaSessionCompat.SetCallback(binder.GetMediaPlayerService().AlternateRemoteCallback ?? new MediaSessionCallback(binder));
+                mediaSessionCompat.SetCallback(binder.GetMediaPlayerService<MediaServiceBase>().AlternateRemoteCallback ?? new MediaSessionCallback(this));
                 mediaSessionCompat.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons | MediaSessionCompat.FlagHandlesTransportControls);
-                NotificationManager = new MediaNotificationManagerImplementation(applicationContext, CurrentSession.SessionToken, typeof(MediaPlayerService));
                 _packageName = packageName;
                 _binder = binder;
             }
@@ -87,7 +90,7 @@ namespace Plugin.MediaManager.MediaSession
         /// </summary>
         /// <param name="state">The state.</param>
         /// <param name="position"></param>
-        public void UpdatePlaybackState(int state, int position = 0)
+        public void UpdatePlaybackState(int state, int position = 0, string errorMessage = "")
         {
             if(CurrentSession == null && (_binder?.IsBinderAlive).GetValueOrDefault(false) && !string.IsNullOrWhiteSpace(_packageName))
                 InitMediaSession(_packageName, _binder);
@@ -101,6 +104,8 @@ namespace Plugin.MediaManager.MediaSession
                         | PlaybackStateCompat.ActionStop);
 
             stateBuilder.SetState(state, position, 0, SystemClock.ElapsedRealtime());
+            if (state == PlaybackStateCompat.StateError)
+                stateBuilder.SetErrorMessage(errorMessage);
             CurrentSession?.SetPlaybackState(stateBuilder.Build());
             OnStatusChanged?.Invoke(CurrentSession, state);
 
@@ -113,7 +118,8 @@ namespace Plugin.MediaManager.MediaSession
 
             RemoteControlFlags flags = RemoteControlFlags.Play
                                        | RemoteControlFlags.Pause
-                                       | RemoteControlFlags.PlayPause;
+                                       | RemoteControlFlags.PlayPause 
+                                       | RemoteControlFlags.FastForward;
 
             remoteControlClient?.SetTransportControlFlags(flags);
             
