@@ -43,9 +43,9 @@ namespace MediaSample.Droid
                 SupportActionBar.SetHomeButtonEnabled(true);
             }
 
-            var exoPlayer = new ExoPlayerAudioImplementation(((MediaManagerImplementation)CrossMediaManager.Current).MediaSessionManager);
-            exoPlayer.RequestHeaders = new Dictionary<string, string> { { "Test", "1234" } };
-            CrossMediaManager.Current.AudioPlayer = exoPlayer;
+            //var exoPlayer = new ExoPlayerAudioImplementation(((MediaManagerImplementation)CrossMediaManager.Current).MediaSessionManager);
+            //exoPlayer.RequestHeaders = new Dictionary<string, string> { { "Test", "1234" } };
+            //CrossMediaManager.Current.AudioPlayer = exoPlayer;
             //new AudioPlayerImplementation<ExoPlayerAudioService>(MediaSessionManager));}
 
             var previous = FindViewById<ImageButton>(Resource.Id.btnPrevious);

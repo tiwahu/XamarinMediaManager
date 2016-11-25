@@ -65,6 +65,12 @@
     <Reference Include="Xamarin.Android.Support.v7.AppCompat">
       <HintPath>..\..\packages\Xamarin.Android.Support.v7.AppCompat.24.2.1\lib\MonoAndroid70\Xamarin.Android.Support.v7.AppCompat.dll</HintPath>
     </Reference>
+    <Reference Include="Xamarin.Android.Support.v7.Palette">
+      <HintPath>..\..\packages\Xamarin.Android.Support.v7.Palette.24.2.1\lib\MonoAndroid70\Xamarin.Android.Support.v7.Palette.dll</HintPath>
+    </Reference>
+    <Reference Include="Xamarin.Android.Support.v7.MediaRouter">
+      <HintPath>..\..\packages\Xamarin.Android.Support.v7.MediaRouter.24.2.1\lib\MonoAndroid70\Xamarin.Android.Support.v7.MediaRouter.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Plugin.MediaManager\CrossMediaManager.cs">
@@ -94,9 +100,15 @@
     <Compile Include="MediaCompat\MusicProvider.cs" />
     <Compile Include="MediaCompat\MusicService.cs" />
     <Compile Include="MediaCompat\Playback.cs" />
-    <Compile Include="MediaCompat\PlaybackManager.cs" />
     <Compile Include="MediaCompat\PlaybackServiceCallback.cs" />
     <Compile Include="MediaCompat\QueueManager.cs" />
+    <Compile Include="MediaCompat\Helpers\WearHelper.cs" />
+    <Compile Include="MediaCompat\Helpers\TvHelper.cs" />
+    <Compile Include="MediaCompat\Helpers\ResourceHelper.cs" />
+    <Compile Include="MediaCompat\Helpers\NetworkHelper.cs" />
+    <Compile Include="MediaCompat\Helpers\CarHelper.cs" />
+    <Compile Include="MediaCompat\Helpers\BitmapHelper.cs" />
+    <Compile Include="MediaCompat\AudioPlayerImplementation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -107,6 +119,9 @@
       <Project>{6edb0588-ffc5-4ef5-8a99-9e241d0f878d}</Project>
       <Name>Plugin.MediaManager.Abstractions</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MediaCompat\Helpers\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

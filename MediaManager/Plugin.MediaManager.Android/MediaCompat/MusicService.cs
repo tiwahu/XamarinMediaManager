@@ -34,7 +34,7 @@ namespace Plugin.MediaManager.Audio
         private static int STOP_DELAY = 30000;
 
         //private MusicProvider mMusicProvider;
-        private PlaybackManager mPlaybackManager;
+        //private PlaybackManager mPlaybackManager;
 
         private MediaSessionCompat _mediaSession;
         private MediaNotificationManager _mediaNotificationManager;
@@ -81,7 +81,7 @@ namespace Plugin.MediaManager.Audio
         //WearHelper.setUseBackgroundFromTheme(mSessionExtras, true);
         _mediaSession.SetExtras(_sessionExtras);
 
-        mPlaybackManager.updatePlaybackState(null);
+        //mPlaybackManager.updatePlaybackState(null);
 
         try 
         {
@@ -124,7 +124,7 @@ namespace Plugin.MediaManager.Audio
         {
             //unregisterCarConnectionReceiver();
             // Service is being killed, so make sure we release our resources
-            mPlaybackManager.handleStopRequest(null);
+            //mPlaybackManager.handleStopRequest(null);
             _mediaNotificationManager.StopNotifications();
 
             /*
@@ -167,7 +167,7 @@ namespace Plugin.MediaManager.Audio
 
         public void onNotificationRequired()
         {
-            _mediaNotificationManager.StartNotification();
+            //_mediaNotificationManager.StartNotification();
         }
 
         public void onPlaybackStop()
@@ -201,9 +201,9 @@ namespace Plugin.MediaManager.Audio
                 MusicService service;
                 if (_weakReference.TryGetTarget(out service))
                 {
-                    if (service != null && service.mPlaybackManager.getPlayback() != null)
+                    //if (service != null && service.mPlaybackManager.getPlayback() != null)
                     {
-                        if (service.mPlaybackManager.getPlayback().isPlaying())
+                     //   if (service.mPlaybackManager.getPlayback().isPlaying())
                         {
                             return;
                         }
