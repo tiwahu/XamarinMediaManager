@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.Media;
@@ -10,6 +11,7 @@ using Android.Support.V4.Media.Session;
 using Android.Text;
 using Java.IO;
 using Plugin.MediaManager.Abstractions;
+using Plugin.MediaManager.Abstractions.Enums;
 using Plugin.MediaManager.Abstractions.EventArguments;
 using Plugin.MediaManager.Abstractions.Implementations;
 
@@ -61,6 +63,8 @@ namespace Plugin.MediaManager.MediaCompat
                     .CreateWifiLock(Android.Net.WifiMode.Full, "uAmp_lock");
             this.mState = PlaybackStateCompat.StateNone;
         }
+
+        public Dictionary<string, string> RequestHeaders { get; set; }
 
         public TimeSpan Buffered
         {

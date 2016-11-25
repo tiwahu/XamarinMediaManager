@@ -4,18 +4,19 @@ using Android.Support.V4.App;
 using Android.Support.V4.Media;
 using Android.Support.V4.Media.Session;
 using Plugin.MediaManager.Abstractions;
+using Plugin.MediaManager.Abstractions.Enums;
 using Plugin.MediaManager.Abstractions.Implementations;
 
 namespace Plugin.MediaManager.MediaCompat
 {
     public class MediaNotificationManager : IMediaNotificationManager
     {
-        private Context _appliactionContext;
+        private Context _applicationContext;
         private MediaSessionCompat _mediaSession;
 
         public MediaNotificationManager(Context context, MediaSessionCompat mediaSession)
         {
-            _appliactionContext = context;
+            _applicationContext = context;
             _mediaSession = mediaSession;
         }
 
@@ -25,7 +26,7 @@ namespace Plugin.MediaManager.MediaCompat
             MediaMetadataCompat mediaMetadata = controller.Metadata;
             MediaDescriptionCompat description = mediaMetadata.Description;
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(_appliactionContext);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(_applicationContext);
             builder
                     .SetContentTitle(description.Title)
                     .SetContentText(description.Subtitle)
@@ -33,10 +34,10 @@ namespace Plugin.MediaManager.MediaCompat
                     .SetLargeIcon(description.IconBitmap)
                     .SetContentIntent(controller.SessionActivity)
                     .SetDeleteIntent(
-                        MediaButtonReceiver.BuildMediaButtonPendingIntent(_appliactionContext, PlaybackStateCompat.ActionStop))
+                        MediaButtonReceiver.BuildMediaButtonPendingIntent(_applicationContext, PlaybackStateCompat.ActionStop))
                     .SetVisibility(Android.Support.V4.App.NotificationCompat.VisibilityPublic);
 
-            Android.Support.V4.App.NotificationManagerCompat.From(_appliactionContext)
+            Android.Support.V4.App.NotificationManagerCompat.From(_applicationContext)
                 .Notify(MediaServiceBase.NotificationId, builder.Build());
         }
 
