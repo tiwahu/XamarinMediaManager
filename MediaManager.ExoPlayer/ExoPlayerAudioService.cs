@@ -36,8 +36,7 @@ namespace Plugin.MediaManager.ExoPlayer
     [Service]
     [IntentFilter(new[] { ActionPlay, ActionPause, ActionStop, ActionTogglePlayback, ActionNext, ActionPrevious })]
     public class ExoPlayerAudioService : MediaServiceBase,
-        IExoPlayerEventListener,
-        TrackSelector.IEventListener, ExtractorMediaSource.IEventListener
+        IExoPlayerEventListener, ExtractorMediaSource.IEventListener
     {
         private SimpleExoPlayer _mediaPlayer;
 
@@ -83,9 +82,7 @@ namespace Plugin.MediaManager.ExoPlayer
 
         public override void InitializePlayer()
         {
-            var mainHandler = new Handler();
-            var trackSelector = new DefaultTrackSelector(mainHandler);
-            trackSelector.AddListener(this);
+            var trackSelector = new DefaultTrackSelector();
             var loadControl = new DefaultLoadControl();
             if (_mediaPlayer == null)
             {
@@ -184,11 +181,6 @@ namespace Plugin.MediaManager.ExoPlayer
         public void OnTimelineChanged(Timeline timeline, Object manifest)
         {
             Console.WriteLine("OnTimelineChanged");
-        }
-
-        public void OnTrackSelectionsChanged(TrackSelections p0)
-        {
-            Console.WriteLine("TrackSelectionChanged");
         }
 
         /* TODO: Implement IOutput Interface => https://github.com/martijn00/ExoPlayerXamarin/issues/38
@@ -291,7 +283,7 @@ namespace Plugin.MediaManager.ExoPlayer
         private IDataSourceFactory GetHttpFactory()
         {
             var bandwithMeter = new DefaultBandwidthMeter();
-            var httpFactory = new DefaultHttpDataSourceFactory(ExoPlayerUtil.GetUserAgent(this, ApplicationInfo.Name), bandwithMeter);
+            var httpFactory = new DefaultHttpDataSourceFactory(Util.GetUserAgent(this, ApplicationInfo.Name), bandwithMeter);
             return new HttpSourceFactory(httpFactory, RequestHeaders);
         }
 
@@ -303,6 +295,11 @@ namespace Plugin.MediaManager.ExoPlayer
         public void OnLoadError(IOException ex)
         {
             OnMediaFileFailed(new MediaFileFailedEventArgs(ex, CurrentFile));
+        }
+
+        public void OnTracksChanged(TrackGroupArray p0, TrackSelectionArray p1)
+        {
+            
         }
     }
 
