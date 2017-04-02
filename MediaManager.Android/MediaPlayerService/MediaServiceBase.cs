@@ -18,7 +18,7 @@ using Plugin.MediaManager.Audio;
 using Plugin.MediaManager.MediaSession;
 
 namespace Plugin.MediaManager
-{
+{/*
     public abstract class MediaServiceBase : Service, AudioManager.IOnAudioFocusChangeListener, IPlaybackManager
     {
         //Actions
@@ -375,6 +375,6 @@ namespace Plugin.MediaManager
             OnMediaFileFailed(new MediaFileFailedEventArgs(new Exception("No mediafile set"), null));
             return false;
         }
-    }
+    }*/
 }
 

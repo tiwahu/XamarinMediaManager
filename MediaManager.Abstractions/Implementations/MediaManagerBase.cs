@@ -19,12 +19,11 @@ namespace Plugin.MediaManager.Abstractions.Implementations
         {
             get
             {
-                if (_currentPlaybackManager == null && CurrentMediaFile != null) SetCurrentPlayer(CurrentMediaFile.Type);
+                if (_currentPlaybackManager == null && CurrentMediaFile != null) 
+                    SetCurrentPlayer(CurrentMediaFile.Type);
 
                 if (_currentPlaybackManager != null)
-                {
                     _currentPlaybackManager.RequestHeaders = RequestHeaders;
-                }
 
                 return _currentPlaybackManager;
             }

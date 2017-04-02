@@ -9,7 +9,7 @@ namespace Plugin.MediaManager.Audio
     /// when audio become noisy, such as the user unplugged headphones
     /// </summary>
 
-    public class AudioPlayerBroadcastReceiver : BroadcastReceiver
+    /*public class AudioPlayerBroadcastReceiver : BroadcastReceiver
     {
         private readonly MediaSessionManager _manager;
 
@@ -24,5 +24,5 @@ namespace Plugin.MediaManager.Audio
                 _manager.HandleAction(MediaServiceBase.ActionPause);
             }
         }
-    }
+    }*/
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Plugin.MediaManager;
 using Plugin.MediaManager.Abstractions.Enums;
+using Plugin.MediaManager.Abstractions.EventArguments;
 using Plugin.MediaManager.Abstractions.Implementations;
 using UIKit;
 
@@ -30,13 +31,16 @@ namespace MediaSample.iOS
             base.ViewDidLayoutSubviews();
         }
 
-        partial void PlayButton_TouchUpInside(UIButton sender)
+        partial void PlayButton_TouchUpInside(UIButton sender2)
         {
             var video = new MediaFile() {
-                Url = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
+                Url = "https://archive.org/download/BigBuckBunny_328/BigBuckBunny_512kb.mp4",
                 Type = MediaFileType.Video
             };
-            CrossMediaManager.Current.Play(video);
+            CrossMediaManager.Current.MediaFileChanged += (object sender, MediaFileChangedEventArgs e) => {
+                var artist = e.File.Metadata.Artist;
+            };
+            CrossMediaManager.Current.Play("https://archive.org/download/BigBuckBunny_328/BigBuckBunny_512kb.mp4", MediaFileType.Video);
         }
     }
 }

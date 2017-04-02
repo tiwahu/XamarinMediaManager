@@ -15,7 +15,7 @@ using NotificationCompat = Android.Support.V7.App.NotificationCompat;
 
 namespace Plugin.MediaManager
 {
-    internal class MediaNotificationManagerImplementation : IMediaNotificationManager
+   /* internal class MediaNotificationManagerImplementation : IMediaNotificationManager
     {
         // private MediaSessionManagerImplementation _sessionHandler;
         private Intent _intent;
@@ -138,5 +138,5 @@ namespace Plugin.MediaManager
                 : GenerateActionCompat(Resource.Drawable.IcMediaPlay, "Play", MediaServiceBase.ActionPlay));
             _builder.AddAction(GenerateActionCompat(Resource.Drawable.IcMediaNext, "Next", MediaServiceBase.ActionNext));
         }
-    }
+    }*/
 }

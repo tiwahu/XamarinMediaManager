@@ -15,7 +15,7 @@ using Plugin.MediaManager.MediaSession;
 
 namespace Plugin.MediaManager
 {
-
+    /*
     using Android.OS;
 
     using Java.Util.Concurrent;
@@ -245,5 +245,5 @@ namespace Plugin.MediaManager
                     return MediaPlayerStatus.Stopped;
             }
         }
-    }
+    }*/
 }

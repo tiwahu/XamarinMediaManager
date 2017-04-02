@@ -11,7 +11,7 @@ using Plugin.MediaManager.Abstractions;
 
 namespace Plugin.MediaManager.MediaSession
 {
-    public class MediaSessionManager
+    /*public class MediaSessionManager
     {
         private Context applicationContext;
         private MediaControllerCompat mediaControllerCompat;
@@ -175,5 +175,5 @@ namespace Plugin.MediaManager.MediaSession
             builder.PutBitmap(MediaMetadata.MetadataKeyAlbumArt, currentTrack?.Metadata.AlbumArt as Bitmap);
             CurrentSession?.SetMetadata(builder.Build());
         }
-    }
+    }*/
 }

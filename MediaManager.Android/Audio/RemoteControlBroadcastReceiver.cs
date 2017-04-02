@@ -3,7 +3,7 @@ using Android.Views;
 
 namespace Plugin.MediaManager
 {
-	[BroadcastReceiver]
+	/*[BroadcastReceiver]
 	[Android.App.IntentFilter(new []{Intent.ActionMediaButton})]
 	public class RemoteControlBroadcastReceiver : BroadcastReceiver
 	{
@@ -61,6 +61,6 @@ namespace Plugin.MediaManager
 			var remoteIntent = new Intent(action);
 			context.StartService(remoteIntent);
 		}
-	}
+	}*/
 }
 

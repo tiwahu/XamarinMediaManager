@@ -4,7 +4,7 @@ using Plugin.MediaManager.Abstractions;
 
 namespace Plugin.MediaManager
 {
-    internal class MediaServiceConnection<TService> : Java.Lang.Object, IServiceConnection where TService : MediaServiceBase
+  /*  internal class MediaServiceConnection<TService> : Java.Lang.Object, IServiceConnection where TService : MediaServiceBase
     {
         private IAudioPlayer player;
 
@@ -28,5 +28,5 @@ namespace Plugin.MediaManager
             var instance = player as AudioPlayerBase<TService>;
             instance?.OnServiceDisconnected();
         }
-    }
+    }*/
 }

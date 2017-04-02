@@ -4,7 +4,7 @@ using Android.Views;
 
 namespace Plugin.MediaManager.MediaSession
 {
-
+    /*
     using Android.Support.V4.Media.Session;
     
     public class MediaSessionCallback : MediaSessionCompat.Callback
@@ -81,5 +81,5 @@ namespace Plugin.MediaManager.MediaSession
             _manager.HandleAction(MediaServiceBase.ActionNext);
             return true;
         }
-    }
+    }*/
 }

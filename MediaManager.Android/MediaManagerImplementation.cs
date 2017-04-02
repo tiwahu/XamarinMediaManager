@@ -2,7 +2,7 @@ using Android.App;
 using Android.Content.Res;
 using Plugin.MediaManager.Abstractions;
 using Plugin.MediaManager.Abstractions.Implementations;
-using Plugin.MediaManager.Audio;
+using Plugin.MediaManager.AudioCompat;
 using Plugin.MediaManager.MediaSession;
 
 namespace Plugin.MediaManager
@@ -12,16 +12,17 @@ namespace Plugin.MediaManager
     {
         public MediaManagerImplementation()
         {
-            MediaSessionManager.OnNotificationActionFired += HandleNotificationActions;
+            //MediaSessionManager.OnNotificationActionFired += HandleNotificationActions;
         }
 
         private IAudioPlayer _audioPlayer;
         private IMediaExtractor _mediaExtraxtor;
-        private MediaSessionManager _sessionManager;
+        private IMediaNotificationManager _audioNotificationManager;
+        //private MediaSessionManager _sessionManager;
 
         public override IAudioPlayer AudioPlayer
         {
-            get {return _audioPlayer ?? (_audioPlayer = new AudioPlayerImplementation(MediaSessionManager));}
+            get {return _audioPlayer ?? (_audioPlayer = new AudioPlayerImplementation());}
             set { _audioPlayer = value; }
         }
 
@@ -29,8 +30,8 @@ namespace Plugin.MediaManager
 
         public override IMediaNotificationManager MediaNotificationManager
         {
-            get { return MediaSessionManager.NotificationManager; }
-            set { MediaSessionManager.NotificationManager = value; }
+            get {return _audioNotificationManager ?? (_audioNotificationManager = new AudioNotificationManager());}
+            set { _audioNotificationManager = value; }
         }
 
         public override IMediaExtractor MediaExtractor
@@ -39,7 +40,7 @@ namespace Plugin.MediaManager
             set { _mediaExtraxtor = value; }
         }
 
-        public MediaSessionManager MediaSessionManager
+        /*public MediaSessionManager MediaSessionManager
         {
             get { return _sessionManager ?? (_sessionManager = new MediaSessionManager(Application.Context, typeof(MediaPlayerService))); }
             set
@@ -47,9 +48,11 @@ namespace Plugin.MediaManager
                 _sessionManager = value;
                 _sessionManager.OnNotificationActionFired += HandleNotificationActions;
             }
-        }
+        }*/
+
         public override IVolumeManager VolumeManager { get; set; } = new VolumeManagerImplementation();
 
+        /*
         private async void HandleNotificationActions(object sender, string action)
         {
             if (action.Equals(MediaServiceBase.ActionPlay))
@@ -72,6 +75,6 @@ namespace Plugin.MediaManager
             {
                 await Stop();
             }
-        }
+        }*/
     }
 }

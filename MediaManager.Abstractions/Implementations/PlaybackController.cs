@@ -4,7 +4,7 @@ using Plugin.MediaManager.Abstractions.Enums;
 
 namespace Plugin.MediaManager.Abstractions.Implementations
 {
-    public class PlaybackController: IPlaybackController
+    public class PlaybackController : IPlaybackController
     {
         private readonly IMediaManager _mediaManager;
 

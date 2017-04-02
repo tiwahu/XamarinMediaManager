@@ -13,7 +13,7 @@ using Plugin.MediaManager.Abstractions.EventArguments;
 
 namespace Plugin.MediaManager
 {
-    [Service]
+   /* [Service]
     [IntentFilter(new[] { ActionPlay, ActionPause, ActionStop, ActionTogglePlayback, ActionNext, ActionPrevious })]
     public class MediaPlayerService : MediaServiceBase,
         MediaPlayer.IOnBufferingUpdateListener,
@@ -321,5 +321,5 @@ namespace Plugin.MediaManager
             _mediaPlayer = null;
         }
     }
-
+*/
 }
