@@ -225,7 +225,7 @@ namespace MediaManager.Platforms.Android.Media
 
         public Task Pause()
         {
-            Player.Stop();
+            Player.PlayWhenReady = false;
             return Task.CompletedTask;
         }
 
