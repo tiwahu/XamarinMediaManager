@@ -131,8 +131,10 @@ namespace MediaManager.Platforms.Android.Media
             DashChunkSourceFactory = new DefaultDashChunkSource.Factory(DataSourceFactory);
             SsChunkSourceFactory = new DefaultSsChunkSource.Factory(DataSourceFactory);
 
-            BandwidthMeter = new DefaultBandwidthMeter();
-            TrackSelectionFactory = new AdaptiveTrackSelection.Factory(BandwidthMeter);
+            //x BandwidthMeter = new DefaultBandwidthMeter();
+            //x TrackSelectionFactory = new AdaptiveTrackSelection.Factory(BandwidthMeter);
+            TrackSelectionFactory = new AdaptiveTrackSelection.Factory();
+
             TrackSelector = new DefaultTrackSelector(TrackSelectionFactory);
             MediaSource = new ConcatenatingMediaSource();
 

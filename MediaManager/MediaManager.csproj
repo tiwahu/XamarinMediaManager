@@ -1,6 +1,6 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;MonoAndroid90</TargetFrameworks>
+    <TargetFrameworks>MonoAndroid90</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,6 +9,7 @@
     <PackageId>Plugin.MediaManager</PackageId>
     <Description>Cross platform Xamarin plugin to play and control Audio and Video</Description>
     <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,13 +20,13 @@
     <None Include="readme.txt" pack="true" PackagePath="." />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
+  <!--<ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
     <Compile Include="Platforms\Netstandard\**\*.cs" />
-  </ItemGroup>
+  </ItemGroup>-->
 
-  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
+  <!--<ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
     <Compile Include="Platforms\Shared\**\*.cs" />
-  </ItemGroup>
+  </ItemGroup>-->
 
   <!-- <ItemGroup Condition=" $(TargetFramework.StartsWith('uap')) ">
     <Compile Include="Platforms\Windows\**\*.cs" />
@@ -61,14 +62,13 @@
     <Compile Include="Platforms\Xamarin\**\*.cs" />
   </ItemGroup> -->
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+  <ItemGroup>
     <Compile Include="Platforms\Android\**\*.cs" />
-    <Compile Include="Platforms\Xamarin\**\*.cs" />
     <AndroidResource Include="Resources\**\*.xml" SubType="Designer" Generator="MSBuild:UpdateAndroidResources" />
-    <PackageReference Include="Xam.Plugins.Android.ExoPlayer" Version="2.8.8" />    
+    <PackageReference Include="Xam.Plugins.Android.ExoPlayer" Version="2.9.6" />    
     <!--<PackageReference Include="Xam.Plugins.Android.ExoPlayer.Cast" Version="2.8.8" />
     <PackageReference Include="Xam.Plugins.Android.ExoPlayer.Leanback" Version="2.8.8" />-->
-    <PackageReference Include="Xam.Plugins.Android.ExoPlayer.MediaSession" Version="2.8.8" />
+    <PackageReference Include="Xam.Plugins.Android.ExoPlayer.MediaSession" Version="2.9.6" />
     <PackageReference Include="Xamarin.Build.Download" Version="0.4.11" PrivateAssets="All" />
   </ItemGroup>
 
