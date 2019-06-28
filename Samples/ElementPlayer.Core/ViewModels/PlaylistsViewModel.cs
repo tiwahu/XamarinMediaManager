@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using MediaManager;
 using MvvmCross.Commands;
 using MvvmCross.Logging;
@@ -20,9 +21,10 @@ namespace ElementPlayer.Core.ViewModels
 
         public IMvxAsyncCommand<string> ItemSelected => new MvxAsyncCommand<string>(SelectItem);
 
-        private async Task SelectItem(string url)
+        private Task SelectItem(string url)
         {
             //TODO: Play Index
+            throw new NotImplementedException();
         }
     }
 }
