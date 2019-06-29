@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -18,13 +19,16 @@ namespace MediaManager.Platforms.Android.MediaSession
         protected MediaBrowserConnectionCallback MediaBrowserConnectionCallback { get; set; }
         protected MediaControllerCallback MediaControllerCallback { get; set; }
         protected MediaBrowserSubscriptionCallback MediaBrowserSubscriptionCallback { get; set; }
-        protected virtual Java.Lang.Class ServiceType { get; } = Java.Lang.Class.FromType(typeof(MediaBrowserService));
+
+        protected virtual Java.Lang.Class ServiceType { get; }
 
         protected bool IsInitialized { get; private set; } = false;
         protected Context Context => MediaManager.Context;
 
-        public MediaBrowserManager()
+        public MediaBrowserManager(Type mediaBrowserServiceType)
         {
+            //? ensure mediaBrowserServiceType derives from MediaBrowserService?
+            this.ServiceType = Java.Lang.Class.FromType(mediaBrowserServiceType);
         }
 
         public bool Init()
@@ -77,18 +81,18 @@ namespace MediaManager.Platforms.Android.MediaSession
                 {
                     OnConnectedImpl = () =>
                     {
-                        MediaController = new MediaControllerCompat(Context, MediaBrowser.SessionToken);
-                        MediaController.RegisterCallback(MediaControllerCallback);
+                        this.MediaController = new MediaControllerCompat(Context, MediaBrowser.SessionToken);
+                        this.MediaController.RegisterCallback(MediaControllerCallback);
 
                         if (Context is Activity activity)
                             MediaControllerCompat.SetMediaController(activity, MediaController);
 
                         // Sync existing MediaSession state to the UI.
                         // The first time these events are fired, the metadata and playbackstate are null. 
-                        MediaControllerCallback.OnMetadataChanged(MediaController.Metadata);
-                        MediaControllerCallback.OnPlaybackStateChanged(MediaController.PlaybackState);
+                        this.MediaControllerCallback.OnMetadataChanged(MediaController.Metadata);
+                        this.MediaControllerCallback.OnPlaybackStateChanged(MediaController.PlaybackState);
 
-                        MediaBrowser.Subscribe(MediaBrowser.Root, MediaBrowserSubscriptionCallback);
+                        this.MediaBrowser.Subscribe(MediaBrowser.Root, this.MediaBrowserSubscriptionCallback);
 
                         IsInitialized = true;
                         //tcs.SetResult(IsInitialized);
@@ -104,21 +108,21 @@ namespace MediaManager.Platforms.Android.MediaSession
                     }
                 };
 
-                MediaBrowser = new MediaBrowserCompat(Context,
+                this.MediaBrowser = new MediaBrowserCompat(this.Context,
                     new ComponentName(
-                        Context,
-                        ServiceType),
-                        MediaBrowserConnectionCallback,
+                        this.Context,
+                        this.ServiceType),
+                        this.MediaBrowserConnectionCallback,
                         null);
             }
 
-            if (!IsInitialized)
+            if (!this.IsInitialized)
             {
-                MediaBrowser.Connect();
-                IsInitialized = true;
+                this.MediaBrowser.Connect();
+                this.IsInitialized = true;
             }
 
-            return IsInitialized;
+            return this.IsInitialized;
         }
     }
 }

@@ -29,6 +29,7 @@ namespace MediaManager
         }
 
         private Context _context = Application.Context;
+
         public Context Context
         {
             get => _context;
@@ -39,7 +40,16 @@ namespace MediaManager
             }
         }
 
+        private Type _mediaBrowserServiceType = null;
+
+        public Type MediaBrowserServiceType
+        {
+            get => _mediaBrowserServiceType;
+            set => this.SetProperty(ref _mediaBrowserServiceType, value);
+        }
+
         private int _notificationIconResource = Resource.Drawable.exo_notification_play;
+
         public int NotificationIconResource
         {
             get => _notificationIconResource;
@@ -47,6 +57,7 @@ namespace MediaManager
         }
 
         private MediaSessionCompat _mediaSession;
+
         public MediaSessionCompat MediaSession
         {
             get => _mediaSession;
@@ -54,6 +65,7 @@ namespace MediaManager
         }
 
         private PendingIntent _sessionActivityPendingIntent;
+
         public PendingIntent SessionActivityPendingIntent
         {
             get
@@ -84,18 +96,21 @@ namespace MediaManager
         }
 
         private MediaBrowserManager _mediaBrowserManager;
+
+
         public virtual MediaBrowserManager MediaBrowserManager
         {
             get
             {
                 if (_mediaBrowserManager == null)
-                    _mediaBrowserManager = new MediaBrowserManager();
+                    _mediaBrowserManager = new MediaBrowserManager(this.MediaBrowserServiceType);
                 return _mediaBrowserManager;
             }
             set => SetProperty(ref _mediaBrowserManager, value);
         }
 
         private IMediaPlayer _mediaPlayer;
+
         public override IMediaPlayer MediaPlayer
         {
             get
@@ -151,7 +166,8 @@ namespace MediaManager
 
         public override TimeSpan Duration => MediaBrowserManager?.MediaController.Metadata?.ToMediaItem().Duration ?? TimeSpan.Zero;
 
-        public override float Speed {
+        public override float Speed
+        {
             get => MediaBrowserManager?.MediaController.PlaybackState?.PlaybackSpeed ?? 0;
             set => throw new NotImplementedException();
         }
@@ -164,7 +180,7 @@ namespace MediaManager
 
         public override Task Play()
         {
-            if(!this.IsPlaying())
+            if (!this.IsPlaying())
                 MediaBrowserManager.MediaController.GetTransportControls().Prepare();
 
             MediaBrowserManager.MediaController.GetTransportControls().Play();
@@ -274,7 +290,7 @@ namespace MediaManager
 
         public override Task<bool> PlayQueueItem(IMediaItem mediaItem)
         {
-            if(!MediaQueue.Contains(mediaItem))
+            if (!MediaQueue.Contains(mediaItem))
                 return Task.FromResult(false);
 
             MediaBrowserManager.MediaController.GetTransportControls().SkipToQueueItem(MediaQueue.IndexOf(mediaItem));

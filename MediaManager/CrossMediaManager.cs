@@ -30,17 +30,7 @@ namespace MediaManager
             }
         }
 
-#if ANDROID
         public static MediaManagerImplementation Android => (MediaManagerImplementation)Current;
-#elif COCOA
-        public static MediaManagerImplementation Apple => (MediaManagerImplementation)Current;
-#elif WINDOWS
-        public static MediaManagerImplementation Windows => (MediaManagerImplementation)Current;
-#elif TIZEN
-        public static MediaManagerImplementation Tizen => (MediaManagerImplementation)Current;
-#elif WPF
-        public static MediaManagerImplementation Wpf => (MediaManagerImplementation)Current;
-#endif
 
         static IMediaManager CreateMediaManager()
         {

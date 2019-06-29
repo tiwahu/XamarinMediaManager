@@ -11,9 +11,9 @@ using MediaManager.Platforms.Android.Media;
 
 namespace MediaManager.Platforms.Android.MediaSession
 {
-    [Service(Exported = true)]
-    [IntentFilter(new[] { global::Android.Service.Media.MediaBrowserService.ServiceInterface })]
-    public class MediaBrowserService : MediaBrowserServiceCompat
+    //[Service(Exported = true)]
+    //[IntentFilter(new[] { global::Android.Service.Media.MediaBrowserService.ServiceInterface })]
+    public abstract class MediaBrowserService : MediaBrowserServiceCompat
     {
         protected MediaManagerImplementation MediaManager = CrossMediaManager.Android;
 

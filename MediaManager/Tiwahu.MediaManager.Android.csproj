@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{AAA23256-D599-4C19-881C-2E5BA6D20308}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TemplateGuid>{9ef11e43-1701-4396-8835-8392d57abb70}</TemplateGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaManager</RootNamespace>
+    <AssemblyName>Tiwahu.MediaManager.Android</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <TargetFrameworkVersion>v9.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidDexTool>d8</AndroidDexTool>
+    <AndroidLinkTool></AndroidLinkTool>
+    <AndroidSupportedAbis />
+    <MandroidI18n />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>portable</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidDexTool>d8</AndroidDexTool>
+    <AndroidLinkTool></AndroidLinkTool>
+    <AndroidSupportedAbis />
+    <MandroidI18n />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Mono.Android" />
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CrossMediaManager.cs" />
+    <Compile Include="IMediaManager.cs" />
+    <Compile Include="Library\IMediaLibrary.cs" />
+    <Compile Include="Library\MediaLibrary.cs" />
+    <Compile Include="MediaManagerBase.cs" />
+    <Compile Include="MediaManagerExtensions.cs" />
+    <Compile Include="Media\BtFolderType.cs" />
+    <Compile Include="Media\DownloadStatus.cs" />
+    <Compile Include="Media\IMediaExtractor.cs" />
+    <Compile Include="Media\IMediaItem.cs" />
+    <Compile Include="Media\IMediaList.cs" />
+    <Compile Include="Media\MediaExtractorExtensions.cs" />
+    <Compile Include="Media\MediaItem.cs" />
+    <Compile Include="Media\MediaItemEventArgs.cs" />
+    <Compile Include="Media\MediaItemExtensions.cs" />
+    <Compile Include="Media\MediaItemFailedEventArgs.cs" />
+    <Compile Include="Media\MediaLocation.cs" />
+    <Compile Include="Media\MediaType.cs" />
+    <Compile Include="Media\MetadataChangedEventArgs.cs" />
+    <Compile Include="Notifications\INotificationManager.cs" />
+    <Compile Include="Notifications\NotificationManagerBase.cs" />
+    <Compile Include="Platforms\Android\MediaManagerExtensions.cs" />
+    <Compile Include="Platforms\Android\MediaManagerImplementation.cs" />
+    <Compile Include="Platforms\Android\MediaSession\MediaBrowserConnectionCallback.cs" />
+    <Compile Include="Platforms\Android\MediaSession\MediaBrowserManager.cs" />
+    <Compile Include="Platforms\Android\MediaSession\MediaBrowserService.cs" />
+    <Compile Include="Platforms\Android\MediaSession\MediaBrowserSubscriptionCallback.cs" />
+    <Compile Include="Platforms\Android\MediaSession\MediaControllerCallback.cs" />
+    <Compile Include="Platforms\Android\MediaSession\MediaSessionCallback.cs" />
+    <Compile Include="Platforms\Android\MediaSession\NotificationListener.cs" />
+    <Compile Include="Platforms\Android\Media\MediaDescriptionAdapter.cs" />
+    <Compile Include="Platforms\Android\Media\MediaExtractor.cs" />
+    <Compile Include="Platforms\Android\Media\MediaItemExtensions.cs" />
+    <Compile Include="Platforms\Android\Notifications\NotificationManager.cs" />
+    <Compile Include="Platforms\Android\Playback\PlaybackStateExtensions.cs" />
+    <Compile Include="Platforms\Android\Player\AndroidMediaPlayer.cs" />
+    <Compile Include="Platforms\Android\Player\MediaSourceFactory.cs" />
+    <Compile Include="Platforms\Android\Player\MetadataOutput.cs" />
+    <Compile Include="Platforms\Android\Player\PlaybackController.cs" />
+    <Compile Include="Platforms\Android\Player\PlaybackPreparer.cs" />
+    <Compile Include="Platforms\Android\Player\PlayerEventListener.cs" />
+    <Compile Include="Platforms\Android\Player\QueueDataAdapter.cs" />
+    <Compile Include="Platforms\Android\Player\QueueNavigator.cs" />
+    <Compile Include="Platforms\Android\Player\RatingCallback.cs" />
+    <Compile Include="Platforms\Android\Video\VideoView.cs" />
+    <Compile Include="Platforms\Android\Volume\VolumeManager.cs" />
+    <Compile Include="Playback\BufferingChangedEventArgs.cs" />
+    <Compile Include="Playback\IPlaybackManager.cs" />
+    <Compile Include="Playback\PositionChangedEventArgs.cs" />
+    <Compile Include="Playback\RepeatMode.cs" />
+    <Compile Include="Playback\StateChangedEventArgs.cs" />
+    <Compile Include="Player\IMediaPlayer.cs" />
+    <Compile Include="Player\MediaPlayerEventArgs.cs" />
+    <Compile Include="Player\MediaPlayerState.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queue\IMediaQueue.cs" />
+    <Compile Include="Queue\MediaQueue.cs" />
+    <Compile Include="Queue\QueueChangedEventArgs.cs" />
+    <Compile Include="Queue\QueueEndedEventArgs.cs" />
+    <Compile Include="Queue\ShuffleMode.cs" />
+    <Compile Include="Resources\Resource.designer.cs" />
+    <Compile Include="Video\IVideoView.cs" />
+    <Compile Include="Video\VideoAspectMode.cs" />
+    <Compile Include="Volume\IVolumeManager.cs" />
+    <Compile Include="Volume\VolumeChangedEventArgs.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\**\*.xml" SubType="Designer" Generator="MSBuild:UpdateAndroidResources" />
+    <PackageReference Include="Xamarin.Android.Support.Compat">
+      <Version>28.0.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.Fragment">
+      <Version>28.0.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.Media.Compat">
+      <Version>28.0.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.v13">
+      <Version>28.0.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.v4">
+      <Version>28.0.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.v7.AppCompat">
+      <Version>28.0.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xam.Plugins.Android.ExoPlayer">
+      <Version>2.9.6</Version>
+    </PackageReference>
+    <PackageReference Include="Xam.Plugins.Android.ExoPlayer.MediaSession">
+      <Version>2.9.6</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.v7.MediaRouter">
+      <Version>28.0.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.v7.Palette">
+      <Version>28.0.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.v7.RecyclerView">
+      <Version>28.0.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Build.Download" Version="0.4.11" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\strings.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+</Project>
