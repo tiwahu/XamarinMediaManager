@@ -29,8 +29,7 @@ namespace MediaManager
         }
 
         private Context _context = Application.Context;
-
-        public Context Context
+        public virtual Context Context
         {
             get => _context;
             set
@@ -57,7 +56,6 @@ namespace MediaManager
         }
 
         private MediaSessionCompat _mediaSession;
-
         public MediaSessionCompat MediaSession
         {
             get => _mediaSession;
@@ -65,8 +63,7 @@ namespace MediaManager
         }
 
         private PendingIntent _sessionActivityPendingIntent;
-
-        public PendingIntent SessionActivityPendingIntent
+        public virtual PendingIntent SessionActivityPendingIntent
         {
             get
             {
@@ -79,7 +76,7 @@ namespace MediaManager
             set => SetProperty(ref _sessionActivityPendingIntent, value);
         }
 
-        public PendingIntent BuildSessionActivityPendingIntent()
+        public virtual PendingIntent BuildSessionActivityPendingIntent()
         {
             Intent sessionIntent;
             // Build a PendingIntent that can be used to launch the UI.
@@ -96,8 +93,6 @@ namespace MediaManager
         }
 
         private MediaBrowserManager _mediaBrowserManager;
-
-
         public virtual MediaBrowserManager MediaBrowserManager
         {
             get
@@ -110,7 +105,6 @@ namespace MediaManager
         }
 
         private IMediaPlayer _mediaPlayer;
-
         public override IMediaPlayer MediaPlayer
         {
             get
@@ -166,8 +160,7 @@ namespace MediaManager
 
         public override TimeSpan Duration => MediaBrowserManager?.MediaController.Metadata?.ToMediaItem().Duration ?? TimeSpan.Zero;
 
-        public override float Speed
-        {
+        public override float Speed {
             get => MediaBrowserManager?.MediaController.PlaybackState?.PlaybackSpeed ?? 0;
             set => throw new NotImplementedException();
         }
@@ -180,7 +173,7 @@ namespace MediaManager
 
         public override Task Play()
         {
-            if (!this.IsPlaying())
+            if(!this.IsPlaying())
                 MediaBrowserManager.MediaController.GetTransportControls().Prepare();
 
             MediaBrowserManager.MediaController.GetTransportControls().Play();

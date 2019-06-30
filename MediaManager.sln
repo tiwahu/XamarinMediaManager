@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElementPlayer.Android", "Sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElementPlayer.Core", "Samples\ElementPlayer.Core\ElementPlayer.Core.csproj", "{D4FBA2B6-2057-412D-A391-0D1BF0E04E12}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaManager.Reactive", "MediaManager.Reactive\MediaManager.Reactive.csproj", "{B7DCFA56-93A9-467F-8443-3D8499676F35}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
