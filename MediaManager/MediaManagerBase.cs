@@ -70,19 +70,19 @@ namespace MediaManager
             }
         }
 
-        public abstract TimeSpan Position { get; }
-        public abstract TimeSpan Duration { get; }
-
         private TimeSpan _buffered;
-        public TimeSpan Buffered {
+        public TimeSpan Buffered
+        {
             get => _buffered;
             internal set
             {
-                if(SetProperty(ref _buffered, value))
-                    OnBufferingChanged(this, new BufferingChangedEventArgs(Buffered));
+                if (SetProperty(ref _buffered, value))
+                    OnBufferedChanged(this, new BufferedChangedEventArgs(Buffered));
             }
         }
 
+        public abstract TimeSpan Position { get; }
+        public abstract TimeSpan Duration { get; }
         public abstract float Speed { get; set; }
         public abstract RepeatMode RepeatMode { get; set; }
         public abstract ShuffleMode ShuffleMode { get; set; }
@@ -195,14 +195,14 @@ namespace MediaManager
         public event PropertyChangedEventHandler PropertyChanged;
 
         public event StateChangedEventHandler StateChanged;
-        public event BufferingChangedEventHandler BufferingChanged;
+        public event BufferedChangedEventHandler BufferedChanged;
         public event PositionChangedEventHandler PositionChanged;
 
         public event MediaItemFinishedEventHandler MediaItemFinished;
         public event MediaItemChangedEventHandler MediaItemChanged;
         public event MediaItemFailedEventHandler MediaItemFailed;
 
-        internal void OnBufferingChanged(object sender, BufferingChangedEventArgs e) => BufferingChanged?.Invoke(sender, e);
+        internal void OnBufferedChanged(object sender, BufferedChangedEventArgs e) => BufferedChanged?.Invoke(sender, e);
         internal void OnMediaItemChanged(object sender, MediaItemEventArgs e) => MediaItemChanged?.Invoke(sender, e);
         internal void OnMediaItemFailed(object sender, MediaItemFailedEventArgs e) => MediaItemFailed?.Invoke(sender, e);
         internal void OnMediaItemFinished(object sender, MediaItemEventArgs e) => MediaItemFinished?.Invoke(sender, e);
