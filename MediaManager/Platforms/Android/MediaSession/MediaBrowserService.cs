@@ -60,6 +60,8 @@ namespace MediaManager.Platforms.Android.MediaSession
             //MediaManager.AndroidMediaPlayer.MediaSession = MediaSession;
         }
 
+        protected virtual int? SmallIconResourceId => null;
+
         protected virtual void PrepareNotificationManager()
         {
             MediaDescriptionAdapter = new MediaDescriptionAdapter();
@@ -91,6 +93,15 @@ namespace MediaManager.Platforms.Android.MediaSession
             PlayerNotificationManager.SetOngoing(true);
             PlayerNotificationManager.SetUsePlayPauseActions(MediaManager.NotificationManager.ShowPlayPauseControls);
             PlayerNotificationManager.SetUseNavigationActions(MediaManager.NotificationManager.ShowNavigationControls);
+
+            //! TODO consider adding support for...
+            // PlayerNotificationManager.SetColor
+            // etc.
+
+            // small icon...
+            var smallIconResourceId = this.SmallIconResourceId;
+            if (smallIconResourceId.HasValue)
+                this.PlayerNotificationManager.SetSmallIcon(smallIconResourceId.Value);
 
             //Must be called to start the connection
             (MediaManager.NotificationManager as Notifications.NotificationManager).Player = MediaManager.AndroidMediaPlayer.Player;
