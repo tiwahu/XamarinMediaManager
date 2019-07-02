@@ -26,7 +26,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidDexTool>d8</AndroidDexTool>
-    <AndroidLinkTool></AndroidLinkTool>
+    <AndroidLinkTool>
+    </AndroidLinkTool>
     <AndroidSupportedAbis />
     <MandroidI18n />
   </PropertyGroup>
@@ -38,7 +39,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidDexTool>d8</AndroidDexTool>
-    <AndroidLinkTool></AndroidLinkTool>
+    <AndroidLinkTool>
+    </AndroidLinkTool>
     <AndroidSupportedAbis />
     <MandroidI18n />
   </PropertyGroup>
@@ -98,7 +100,7 @@
     <Compile Include="Platforms\Android\Player\RatingCallback.cs" />
     <Compile Include="Platforms\Android\Video\VideoView.cs" />
     <Compile Include="Platforms\Android\Volume\VolumeManager.cs" />
-    <Compile Include="Playback\BufferingChangedEventArgs.cs" />
+    <Compile Include="Playback\BufferedChangedEventArgs.cs" />
     <Compile Include="Playback\IPlaybackManager.cs" />
     <Compile Include="Playback\PositionChangedEventArgs.cs" />
     <Compile Include="Playback\RepeatMode.cs" />
