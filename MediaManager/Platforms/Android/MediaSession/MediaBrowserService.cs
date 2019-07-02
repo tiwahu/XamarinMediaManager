@@ -106,7 +106,7 @@ namespace MediaManager.Platforms.Android.MediaSession
             PlayerNotificationManager.SetRewindIncrementMs((long)MediaManager.StepSize.TotalMilliseconds);
             PlayerNotificationManager.SetNotificationListener(NotificationListener);
             PlayerNotificationManager.SetMediaSessionToken(SessionToken);
-            PlayerNotificationManager.SetOngoing(false);
+            PlayerNotificationManager.SetOngoing(true);
             PlayerNotificationManager.SetUsePlayPauseActions(MediaManager.NotificationManager.ShowPlayPauseControls);
             PlayerNotificationManager.SetUseNavigationActions(MediaManager.NotificationManager.ShowNavigationControls);
 

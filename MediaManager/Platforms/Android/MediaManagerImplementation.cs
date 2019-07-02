@@ -53,7 +53,12 @@ namespace MediaManager
         public int NotificationIconResource
         {
             get => _notificationIconResource;
-            set => SetProperty(ref _notificationIconResource, value);
+            set
+            {
+                SetProperty(ref _notificationIconResource, value);
+                var playerNotificationManager = (NotificationManager as MediaManager.Platforms.Android.Notifications.NotificationManager)?.PlayerNotificationManager;
+                playerNotificationManager?.SetSmallIcon(_notificationIconResource);
+            }
         }
 
         private MediaSessionCompat _mediaSession;
