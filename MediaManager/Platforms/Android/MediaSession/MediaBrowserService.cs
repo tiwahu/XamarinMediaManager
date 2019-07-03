@@ -76,6 +76,13 @@ namespace MediaManager.Platforms.Android.MediaSession
 
         protected virtual int? SmallIconResourceId => null;
 
+        protected virtual int? Color => null;
+
+        protected virtual bool? Colorized => null;
+
+        protected virtual bool? UseChronometer => null;
+
+
         protected virtual void PrepareNotificationManager()
         {
             MediaDescriptionAdapter = new MediaDescriptionAdapter();
@@ -90,7 +97,8 @@ namespace MediaManager.Platforms.Android.MediaSession
             NotificationListener = new NotificationListener();
             NotificationListener.OnNotificationStartedImpl = (notificationId, notification) =>
             {
-                ContextCompat.StartForegroundService(ApplicationContext, new Intent(ApplicationContext, Java.Lang.Class.FromType(typeof(MediaBrowserService))));
+                // NOTE: need to use specified MediaBrowserServiceType...
+                ContextCompat.StartForegroundService(ApplicationContext, new Intent(ApplicationContext, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
                 StartForeground(notificationId, notification);
                 IsForeground = true;
             };
@@ -104,24 +112,39 @@ namespace MediaManager.Platforms.Android.MediaSession
 
             PlayerNotificationManager.SetFastForwardIncrementMs((long)MediaManager.StepSize.TotalMilliseconds);
             PlayerNotificationManager.SetRewindIncrementMs((long)MediaManager.StepSize.TotalMilliseconds);
+            
+            //? deprecated?
             PlayerNotificationManager.SetNotificationListener(NotificationListener);
+
             PlayerNotificationManager.SetMediaSessionToken(SessionToken);
             PlayerNotificationManager.SetOngoing(true);
             PlayerNotificationManager.SetUsePlayPauseActions(MediaManager.NotificationManager.ShowPlayPauseControls);
             PlayerNotificationManager.SetUseNavigationActions(MediaManager.NotificationManager.ShowNavigationControls);
 
-            //! TODO consider adding support for...
-            // PlayerNotificationManager.SetColor
-            // etc.
+            //PlayerNotificationManager.SetUseActionsInComapactView(true);
 
-            // small icon...
+            // CUSTOM SUPPORT
+            PlayerNotificationManager.SetVisibility((int)NotificationVisibility.Public);
+
             var smallIconResourceId = this.SmallIconResourceId;
             if (smallIconResourceId.HasValue)
                 this.PlayerNotificationManager.SetSmallIcon(smallIconResourceId.Value);
 
+            if (this.Color.HasValue)
+                this.PlayerNotificationManager.SetColor(this.Color.Value);
+
+            if (this.Colorized.HasValue)
+                this.PlayerNotificationManager.SetColorized(this.Colorized.Value);
+
+            if (this.UseChronometer.HasValue)
+                this.PlayerNotificationManager.SetUseChronometer(this.UseChronometer.Value);
+
+            // CUSTOM SUPPORT
+
             //Must be called to start the connection
-            (MediaManager.NotificationManager as Notifications.NotificationManager).Player = MediaManager.Player;
-            //PlayerNotificationManager.SetPlayer(MediaManager.AndroidMediaPlayer.Player);
+            //! SWITCHED
+            //(MediaManager.NotificationManager as Notifications.NotificationManager).Player = MediaManager.Player;
+            PlayerNotificationManager.SetPlayer(MediaManager.AndroidMediaPlayer.Player);
         }
 
         public override StartCommandResult OnStartCommand(Intent startIntent, StartCommandFlags flags, int startId)
