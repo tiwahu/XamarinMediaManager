@@ -3,6 +3,7 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
+using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using Android.Support.V4.Media;
 using Android.Support.V4.Media.Session;
@@ -15,9 +16,7 @@ namespace MediaManager.Platforms.Android.MediaSession
     //[IntentFilter(new[] { global::Android.Service.Media.MediaBrowserService.ServiceInterface })]
     public abstract class MediaBrowserService : MediaBrowserServiceCompat
     {
-        protected MediaManagerImplementation MediaManager = CrossMediaManager.Android;
-
-        //protected MediaSessionCompat MediaSession { get; set; }
+        protected MediaManagerImplementation MediaManager => CrossMediaManager.Android;
         protected MediaDescriptionAdapter MediaDescriptionAdapter { get; set; }
         protected PlayerNotificationManager PlayerNotificationManager {
             get => (MediaManager.NotificationManager as Notifications.NotificationManager).PlayerNotificationManager;
@@ -30,7 +29,7 @@ namespace MediaManager.Platforms.Android.MediaSession
         public readonly string ChannelId = "audio_channel";
         public readonly int ForegroundNotificationId = 1;
         public bool IsForeground = false;
-
+        protected Notification _notification;
 
         public MediaBrowserService()
         {
@@ -47,30 +46,57 @@ namespace MediaManager.Platforms.Android.MediaSession
             PrepareMediaSession();
             PrepareNotificationManager();
 
-            /*MediaManager.AndroidMediaPlayer.PlayerEventListener.OnPlayerStateChangedImpl = (bool playWhenReady, int playbackState) =>
+            MediaManager.StateChanged += MediaManager_StateChanged;
+        }
+
+        private void MediaManager_StateChanged(object sender, MediaManager.Playback.StateChangedEventArgs e)
+        {
+            switch (e.State)
             {
-                if (playWhenReady && !IsForeground)
-                {
-                    //TODO: Start the service again.
-                    //StartForeground()
-                }
-                else if (!playWhenReady && IsForeground)
-                {
-                    StopForeground(false);
-                    IsForeground = false;
-                }
-            };*/
+                case global::MediaManager.Playback.MediaPlayerState.Failed:
+                case global::MediaManager.Playback.MediaPlayerState.Stopped:
+                    if (IsForeground)
+                    {
+                        StopForeground(true);
+                        StopSelf();
+                        IsForeground = false;
+                    }
+                    break;
+                case global::MediaManager.Playback.MediaPlayerState.Loading:
+                case global::MediaManager.Playback.MediaPlayerState.Buffering:
+                case global::MediaManager.Playback.MediaPlayerState.Playing:
+                    if(!IsForeground)
+                    {
+                        ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(typeof(MediaBrowserService))));
+                        PlayerNotificationManager.SetOngoing(true);
+                        //StartForeground(ForegroundNotificationId, _notification);
+                        IsForeground = true;
+                    }
+                    break;
+                case global::MediaManager.Playback.MediaPlayerState.Paused:
+                    if (IsForeground)
+                    {
+                        StopForeground(false);
+                        PlayerNotificationManager.SetOngoing(false);
+                        //NotificationManagerCompat.From(this).Notify(ForegroundNotificationId, _notification);
+                        IsForeground = false;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         protected virtual void PrepareMediaSession()
         {
-            MediaManager.MediaSession = new MediaSessionCompat(this, nameof(MediaBrowserService));
-            MediaManager.MediaSession.SetSessionActivity(MediaManager.SessionActivityPendingIntent);
-            MediaManager.MediaSession.Active = true;
+            var mediaSession = new MediaSessionCompat(this, nameof(MediaBrowserService));
+            MediaManager.MediaSession = mediaSession;
+            mediaSession.SetSessionActivity(MediaManager.SessionActivityPendingIntent);
+            mediaSession.Active = true;
 
-            SessionToken = MediaManager.MediaSession.SessionToken;
+            SessionToken = mediaSession.SessionToken;
 
-            MediaManager.MediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons |
+            mediaSession.SetFlags(MediaSessionCompat.FlagHandlesMediaButtons |
                                    MediaSessionCompat.FlagHandlesTransportControls);
         }
 
@@ -97,8 +123,9 @@ namespace MediaManager.Platforms.Android.MediaSession
             NotificationListener = new NotificationListener();
             NotificationListener.OnNotificationStartedImpl = (notificationId, notification) =>
             {
+                _notification = notification;
                 // NOTE: need to use specified MediaBrowserServiceType...
-                ContextCompat.StartForegroundService(ApplicationContext, new Intent(ApplicationContext, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
+                ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
                 StartForeground(notificationId, notification);
                 IsForeground = true;
             };
@@ -161,11 +188,9 @@ namespace MediaManager.Platforms.Android.MediaSession
             // Service is being killed, so make sure we release our resources
             //PlayerNotificationManager.SetPlayer(null);
             //PlayerNotificationManager.Dispose();
-            //MediaManager.MediaPlayer.Dispose();
-            //MediaManager.MediaPlayer = null;
+            MediaManager.StateChanged -= MediaManager_StateChanged;
             MediaManager.MediaSession.Active = false;
             MediaManager.MediaSession.Release();
-            //MediaSession = null;
             StopForeground(true);
             IsForeground = false;
         }
