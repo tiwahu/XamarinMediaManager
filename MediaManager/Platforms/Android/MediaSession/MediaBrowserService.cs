@@ -67,7 +67,8 @@ namespace MediaManager.Platforms.Android.MediaSession
                 case global::MediaManager.Playback.MediaPlayerState.Playing:
                     if(!IsForeground)
                     {
-                        ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(typeof(MediaBrowserService))));
+                        // NOTE: need to use specified MediaBrowserServiceType...
+                        ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
                         PlayerNotificationManager.SetOngoing(true);
                         PlayerNotificationManager.Invalidate();
 

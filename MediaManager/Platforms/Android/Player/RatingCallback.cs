@@ -35,10 +35,5 @@ namespace MediaManager.Platforms.Android.Media
         {
 
         }
-
-        public void OnSetRating(IPlayer player, RatingCompat rating, Bundle extras)
-        {
-
-        }
     }
 }
