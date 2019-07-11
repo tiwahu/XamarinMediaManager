@@ -12,7 +12,7 @@ using MediaManager.Platforms.Android.Media;
 
 namespace MediaManager.Platforms.Android.MediaSession
 {
-    //[Service(Exported = true)]
+    //[Service(Exported = true, Enabled = true)]
     //[IntentFilter(new[] { global::Android.Service.Media.MediaBrowserService.ServiceInterface })]
     public abstract class MediaBrowserService : MediaBrowserServiceCompat
     {
@@ -68,13 +68,15 @@ namespace MediaManager.Platforms.Android.MediaSession
                     if(!IsForeground)
                     {
                         // NOTE: need to use specified MediaBrowserServiceType...
-                        ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
-                        PlayerNotificationManager.SetOngoing(true);
-                        PlayerNotificationManager.Invalidate();
+                        // call it?
+                        //ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
+
+                        PlayerNotificationManager?.SetOngoing(true);
+                        PlayerNotificationManager?.Invalidate();
 
                         //TODO: This might need to be called: https://stackoverflow.com/questions/44425584/context-startforegroundservice-did-not-then-call-service-startforeground
-                        // calling it...
-                        StartForeground(ForegroundNotificationId, _notification);
+                        // call it?
+                        //StartForeground(ForegroundNotificationId, _notification);
 
                         IsForeground = true;
                     }
@@ -83,7 +85,7 @@ namespace MediaManager.Platforms.Android.MediaSession
                     if (IsForeground)
                     {
                         StopForeground(false);
-                        PlayerNotificationManager.SetOngoing(false);
+                        PlayerNotificationManager?.SetOngoing(false);
                         IsForeground = false;
                     }
                     break;
@@ -186,6 +188,12 @@ namespace MediaManager.Platforms.Android.MediaSession
                 MediaButtonReceiver.HandleIntent(MediaManager.MediaSession, startIntent);
             }
             return StartCommandResult.Sticky;
+        }
+
+        public override void OnTaskRemoved(Intent rootIntent)
+        {
+            base.OnTaskRemoved(rootIntent);
+            MediaManager.Stop();
         }
 
         public override void OnDestroy()

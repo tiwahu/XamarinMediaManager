@@ -10,20 +10,17 @@
     <TargetFrameworks Condition=" '$(TargetsToBuild)' == 'iOS' ">netstandard2.0;Xamarin.iOS10</TargetFrameworks>
     <TargetFrameworks Condition=" '$(TargetsToBuild)' == 'Apple' ">netstandard2.0;Xamarin.iOS10;Xamarin.Mac20;Xamarin.TVOS10</TargetFrameworks>
   </PropertyGroup>
-  
+
   <PropertyGroup>
-    <AssemblyName>MediaManager</AssemblyName>
-    <RootNamespace>MediaManager</RootNamespace>
-    <PackageId>Plugin.MediaManager</PackageId>
-    <Description>Cross platform Xamarin plugin to play and control Audio and Video</Description>
+    <AssemblyName>MediaManager.Forms</AssemblyName>
+    <RootNamespace>MediaManager.Forms</RootNamespace>
+    <PackageId>Plugin.MediaManager.Forms</PackageId>
+    <Description>Cross platform Xamarin plugin to play and control Audio and Video. This adds Xamarin.Forms specific features</Description>
     <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(TargetFramework.StartsWith('uap'))">
-    <GenerateLibraryLayout>true</GenerateLibraryLayout>
-  </PropertyGroup>
-  
   <ItemGroup>
+    <PackageReference Include="Xamarin.Forms" Version="3.6.0.344457" />
     <Compile Remove="Platforms\**\*.cs" />
     <None Include="Platforms\**\*.cs" />
     <None Include="Resources\*.cs" />
@@ -42,6 +39,7 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System.Xaml" />
+    <PackageReference Include="Xamarin.Forms.Platform.WPF" Version="3.6.0.344457" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
@@ -51,11 +49,6 @@
   <ItemGroup Condition=" $(TargetFramework.StartsWith('uap')) ">
     <Compile Include="Platforms\Windows\**\*.cs" />
     <Compile Condition=" '$(OS)' == 'Windows_NT' " Include="Platforms\Uap\**\*.cs" />
-    <Compile Update="Platforms\Uap\**\*.xaml.cs" DependentUpon="%(Filename)" />
-    <Page Include="Platforms\Uap\**\*.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
@@ -86,10 +79,11 @@
     <Compile Include="Platforms\Android\**\*.cs" />
     <Compile Include="Platforms\Xamarin\**\*.cs" />
     <AndroidResource Include="Resources\**\*.xml" SubType="Designer" Generator="MSBuild:UpdateAndroidResources" />
-    <PackageReference Include="Xam.Plugins.Android.ExoPlayer" Version="2.9.7" />    
-    <!--<PackageReference Include="Xam.Plugins.Android.ExoPlayer.Cast" Version="2.9.7" />
-    <PackageReference Include="Xam.Plugins.Android.ExoPlayer.Leanback" Version="2.9.7" />-->
-    <PackageReference Include="Xam.Plugins.Android.ExoPlayer.MediaSession" Version="2.9.7" />
+    <PackageReference Include="Xamarin.Android.Support.Design" Version="28.0.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.v4" Version="28.0.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="28.0.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.v7.CardView" Version="28.0.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.v7.MediaRouter" Version="28.0.0.1" />
     <PackageReference Include="Xamarin.Build.Download" Version="0.4.11" PrivateAssets="All" />
   </ItemGroup>
 
@@ -97,5 +91,17 @@
     <Compile Include="Platforms\Tizen\**\*.cs" />
     <Compile Include="Platforms\Xamarin\**\*.cs" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\MediaManager\MediaManager.csproj" />
+  </ItemGroup>
 
+  <!-- There is something not working correctly w.r.t. multi-targetting so adding
+    direct reference seems to help get the build to work -->
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.Mac')) ">
+    <Reference Include="netstandard" />
+  </ItemGroup>
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+    <Reference Include="netstandard" />
+  </ItemGroup>
 </Project>
