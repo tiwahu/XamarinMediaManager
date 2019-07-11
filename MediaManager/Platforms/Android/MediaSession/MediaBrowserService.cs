@@ -73,7 +73,9 @@ namespace MediaManager.Platforms.Android.MediaSession
                         PlayerNotificationManager.Invalidate();
 
                         //TODO: This might need to be called: https://stackoverflow.com/questions/44425584/context-startforegroundservice-did-not-then-call-service-startforeground
-                        //StartForeground(ForegroundNotificationId, _notification);
+                        // calling it...
+                        StartForeground(ForegroundNotificationId, _notification);
+
                         IsForeground = true;
                     }
                     break;
@@ -172,9 +174,9 @@ namespace MediaManager.Platforms.Android.MediaSession
             // CUSTOM SUPPORT
 
             //Must be called to start the connection
-            //! SWITCHED
+            //! switched
             //(MediaManager.NotificationManager as Notifications.NotificationManager).Player = MediaManager.Player;
-            PlayerNotificationManager.SetPlayer(MediaManager.AndroidMediaPlayer.Player);
+            this.PlayerNotificationManager.SetPlayer(MediaManager.Player);
         }
 
         public override StartCommandResult OnStartCommand(Intent startIntent, StartCommandFlags flags, int startId)
@@ -189,8 +191,11 @@ namespace MediaManager.Platforms.Android.MediaSession
         public override void OnDestroy()
         {
             // Service is being killed, so make sure we release our resources
-            //PlayerNotificationManager.SetPlayer(null);
-            //PlayerNotificationManager.Dispose();
+
+            // enabling this disposal, too...
+            PlayerNotificationManager.SetPlayer(null);
+            PlayerNotificationManager.Dispose();
+
             MediaManager.StateChanged -= MediaManager_StateChanged;
             MediaManager.MediaSession.Active = false;
             MediaManager.MediaSession.Release();
