@@ -12,9 +12,11 @@ namespace MediaManager.Platforms.Android.MediaSession
 {
     public class MediaBrowserManager
     {
+        private TaskCompletionSource<bool> _tcs;
+
         protected MediaManagerImplementation MediaManager => CrossMediaManager.Android;
 
-        public MediaControllerCompat MediaController { get; set; }
+        //public MediaControllerCompat MediaController { get; set; }
         protected MediaBrowserCompat MediaBrowser { get; set; }
         protected MediaBrowserConnectionCallback MediaBrowserConnectionCallback { get; set; }
         protected MediaControllerCallback MediaControllerCallback { get; set; }
@@ -31,8 +33,13 @@ namespace MediaManager.Platforms.Android.MediaSession
             this.ServiceType = Java.Lang.Class.FromType(mediaBrowserServiceType);
         }
 
-        public bool Init()
+        public async Task<bool> Init()
         {
+            if (_tcs?.Task != null)
+                return await _tcs.Task;
+
+            _tcs = new TaskCompletionSource<bool>();
+
             if (MediaBrowser == null)
             {
                 MediaControllerCallback = new MediaControllerCallback()
@@ -81,26 +88,26 @@ namespace MediaManager.Platforms.Android.MediaSession
                 {
                     OnConnectedImpl = () =>
                     {
-                        this.MediaController = new MediaControllerCompat(Context, MediaBrowser.SessionToken);
-                        this.MediaController.RegisterCallback(MediaControllerCallback);
+                        var mediaController = MediaManager.MediaController = new MediaControllerCompat(Context, MediaBrowser.SessionToken);
+                        mediaController.RegisterCallback(this.MediaControllerCallback);
 
                         if (Context is Activity activity)
-                            MediaControllerCompat.SetMediaController(activity, MediaController);
+                            MediaControllerCompat.SetMediaController(activity, mediaController);
 
                         // Sync existing MediaSession state to the UI.
                         // The first time these events are fired, the metadata and playbackstate are null. 
-                        this.MediaControllerCallback.OnMetadataChanged(MediaController.Metadata);
-                        this.MediaControllerCallback.OnPlaybackStateChanged(MediaController.PlaybackState);
+                        this.MediaControllerCallback.OnMetadataChanged(mediaController.Metadata);
+                        this.MediaControllerCallback.OnPlaybackStateChanged(mediaController.PlaybackState);
 
                         this.MediaBrowser.Subscribe(MediaBrowser.Root, this.MediaBrowserSubscriptionCallback);
 
                         IsInitialized = true;
-                        //tcs.SetResult(IsInitialized);
+                        _tcs.SetResult(IsInitialized);
                     },
                     OnConnectionFailedImpl = () =>
                     {
                         IsInitialized = false;
-                        //tcs.SetResult(IsInitialized);
+                        _tcs.SetResult(IsInitialized);
                     },
                     OnConnectionSuspendedImpl = () =>
                     {
@@ -118,11 +125,10 @@ namespace MediaManager.Platforms.Android.MediaSession
 
             if (!this.IsInitialized)
             {
-                this.MediaBrowser.Connect();
-                this.IsInitialized = true;
+                MediaBrowser.Connect();
             }
 
-            return this.IsInitialized;
+            return await _tcs.Task;
         }
     }
 }

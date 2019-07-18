@@ -53,7 +53,11 @@ namespace MediaManager
             set => SetProperty(ref _mediaQueue, value);
         }
 
-        public abstract void Init();
+        public virtual void Init()
+        {
+            IsInitialized = true;
+        }
+
         public abstract IMediaPlayer MediaPlayer { get; set; }
         public abstract IMediaExtractor MediaExtractor { get; set; }
         public abstract IVolumeManager VolumeManager { get; set; }
@@ -117,7 +121,7 @@ namespace MediaManager
         public virtual async Task<bool> PlayNext()
         {
             // If we repeat just the single media item, we do that first
-            if (MediaPlayer.RepeatMode == RepeatMode.One)
+            if (RepeatMode == RepeatMode.One)
             {
                 await MediaPlayer.Play(MediaQueue.Current);
                 return true;
@@ -133,7 +137,7 @@ namespace MediaManager
                 else
                 {
                     // If there is no next media item, but we repeat them all, we reset the current index and start playing it again
-                    if (MediaPlayer.RepeatMode == RepeatMode.All)
+                    if (RepeatMode == RepeatMode.All)
                     {
                         // Go to the start of the queue again
                         MediaQueue.CurrentIndex = 0;
@@ -249,6 +253,12 @@ namespace MediaManager
                 //OnPropertyChanged(nameof(Position));
                 OnPositionChanged(this, new PositionChangedEventArgs(Position));
             }
+        }
+
+        public virtual void Dispose()
+        {
+            Timer.Elapsed -= Timer_Elapsed;
+            Timer.Dispose();
         }
     }
 }

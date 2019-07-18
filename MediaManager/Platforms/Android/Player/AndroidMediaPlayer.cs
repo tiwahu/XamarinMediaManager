@@ -85,7 +85,10 @@ namespace MediaManager.Platforms.Android.Media
                 if (PlayerView != null)
                 {
                     PlayerView.RequestFocus();
-                    PlayerView.Player = Player;
+
+                    //Use private field to prevent calling Initialize here
+                    if (_player != null)
+                        PlayerView.Player = Player;
                 }
             }
         }
@@ -94,26 +97,11 @@ namespace MediaManager.Platforms.Android.Media
 
         public MediaSessionCompat MediaSession => MediaManager.MediaSession;
 
-        public RepeatMode RepeatMode
-        {
-            get
-            {
-                return (RepeatMode)Player.RepeatMode;
-            }
-            set
-            {
-                MediaManager.RepeatMode = value;
-            }
-        }
-
         public event BeforePlayingEventHandler BeforePlaying;
         public event AfterPlayingEventHandler AfterPlaying;
 
         protected virtual void Initialize()
         {
-            if (MediaSession == null)
-                throw new ArgumentNullException(nameof(MediaSession), $"{nameof(MediaSession)} cannot be null. Make sure the {nameof(MediaBrowserService)} sets it up");
-
             if (RequestHeaders?.Count > 0 && RequestHeaders.TryGetValue("User-Agent", out string userAgent))
                 UserAgent = userAgent;
             else
@@ -172,8 +160,9 @@ namespace MediaManager.Platforms.Android.Media
                     switch (playbackState)
                     {
                         case Com.Google.Android.Exoplayer2.Player.StateEnded:
-                            //TODO: Maybe this means now the whole list is finished?
-                            //MediaManager.OnMediaItemFinished(this, new MediaItemEventArgs(MediaManager.MediaQueue.Current));
+                            if(!Player.HasNext)
+                                MediaManager.OnMediaItemFinished(this, new MediaItemEventArgs(MediaManager.MediaQueue.Current));
+                            //TODO: This means the whole list is finished. Should we fire an event?
                             break;
                         case Com.Google.Android.Exoplayer2.Player.StateIdle:
                         case Com.Google.Android.Exoplayer2.Player.StateBuffering:
@@ -222,6 +211,17 @@ namespace MediaManager.Platforms.Android.Media
                 }
             };
             Player.AddListener(PlayerEventListener);
+
+            ConnectMediaSession();
+
+            if (PlayerView != null && PlayerView.Player == null)
+                PlayerView.Player = Player;
+        }
+
+        public virtual void ConnectMediaSession()
+        {
+            if (MediaSession == null)
+                throw new ArgumentNullException(nameof(MediaSession), $"{nameof(MediaSession)} cannot be null. Make sure the {nameof(MediaBrowserService)} sets it up");
 
             PlaybackController = new PlaybackController();
             MediaSessionConnector = new MediaSessionConnector(MediaSession, PlaybackController);

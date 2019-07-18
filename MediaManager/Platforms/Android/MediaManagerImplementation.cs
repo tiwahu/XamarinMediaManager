@@ -68,6 +68,13 @@ namespace MediaManager
             set => SetProperty(ref _mediaSession, value);
         }
 
+        private MediaControllerCompat _mediaController;
+        public MediaControllerCompat MediaController
+        {
+            get => _mediaController;
+            set => SetProperty(ref _mediaController, value);
+        }
+
         private PendingIntent _sessionActivityPendingIntent;
         public virtual PendingIntent SessionActivityPendingIntent
         {
@@ -95,7 +102,13 @@ namespace MediaManager
 
         public override void Init()
         {
-            IsInitialized = MediaBrowserManager.Init();
+            EnsureInit();
+        }
+
+        public async Task EnsureInit()
+        {
+            if (!IsInitialized && !(IsInitialized = await MediaBrowserManager.Init()))
+                throw new Exception("Cannot Initialize MediaManager");
         }
 
         private MediaBrowserManager _mediaBrowserManager;
@@ -175,49 +188,56 @@ namespace MediaManager
             set => SetProperty(ref _notificationManager, value);
         }
 
-        public override TimeSpan Position => TimeSpan.FromMilliseconds(MediaBrowserManager?.MediaController?.PlaybackState?.Position ?? 0);
+        public override TimeSpan Position => TimeSpan.FromMilliseconds(MediaController?.PlaybackState?.Position ?? 0);
 
-        public override TimeSpan Duration => MediaBrowserManager?.MediaController?.Metadata?.ToMediaItem()?.Duration ?? TimeSpan.Zero;
+        public override TimeSpan Duration => MediaController?.Metadata?.ToMediaItem()?.Duration ?? TimeSpan.Zero;
 
         public override float Speed {
-            get => MediaBrowserManager?.MediaController?.PlaybackState?.PlaybackSpeed ?? 0;
-            set => throw new NotImplementedException();
+            get => MediaController?.PlaybackState?.PlaybackSpeed ?? 0;
+            set => Player.PlaybackParameters.Speed = value;
         }
 
-        public override Task Pause()
+        public override async Task Pause()
         {
-            MediaBrowserManager.MediaController.GetTransportControls().Pause();
-            return Task.CompletedTask;
+            await EnsureInit();
+
+            MediaController.GetTransportControls().Pause();
         }
 
-        public override Task Play()
+        public override async Task Play()
         {
-            if(this.IsStopped())
-                MediaBrowserManager.MediaController.GetTransportControls().Prepare();
+            await EnsureInit();
 
-            MediaBrowserManager.MediaController.GetTransportControls().Play();
-            return Task.CompletedTask;
+            if (this.IsStopped())
+                MediaController.GetTransportControls().Prepare();
+
+            MediaController.GetTransportControls().Play();
         }
 
         public override async Task<IMediaItem> Play(string uri)
         {
+            await EnsureInit();
+
             var mediaItem = await MediaExtractor.CreateMediaItem(uri);
             await AddMediaItemsToQueue(new List<IMediaItem> { mediaItem }, true);
 
-            MediaBrowserManager.MediaController.GetTransportControls().Prepare();
+            MediaController.GetTransportControls().Prepare();
             return mediaItem;
         }
 
         public override async Task Play(IMediaItem mediaItem)
         {
+            await EnsureInit();
             await AddMediaItemsToQueue(new List<IMediaItem> { mediaItem }, true);
 
-            MediaBrowserManager.MediaController.GetTransportControls().Prepare();
+            MediaController.GetTransportControls().Prepare();
             return;
         }
 
         public override async Task<IEnumerable<IMediaItem>> Play(IEnumerable<string> items)
         {
+            await EnsureInit();
+
             var mediaItems = new List<IMediaItem>();
             foreach (var uri in items)
             {
@@ -227,15 +247,17 @@ namespace MediaManager
             await AddMediaItemsToQueue(mediaItems, true);
 
             await MediaQueue.FirstOrDefault()?.FetchMetaData();
-            MediaBrowserManager.MediaController.GetTransportControls().Prepare();
+            MediaController.GetTransportControls().Prepare();
             return MediaQueue;
         }
 
         public override async Task Play(IEnumerable<IMediaItem> items)
         {
+            await EnsureInit();
+
             await AddMediaItemsToQueue(items, true);
 
-            MediaBrowserManager.MediaController.GetTransportControls().Prepare();
+            MediaController.GetTransportControls().Prepare();
             return;
         }
 
@@ -251,15 +273,19 @@ namespace MediaManager
 
         public override async Task<IMediaItem> Play(FileInfo file)
         {
+            await EnsureInit();
+
             var mediaItem = await MediaExtractor.CreateMediaItem(file);
             var mediaItemToPlay = await AddMediaItemsToQueue(new List<IMediaItem> { mediaItem }, true);
 
-            MediaBrowserManager.MediaController.GetTransportControls().Prepare();
+            MediaController.GetTransportControls().Prepare();
             return mediaItem;
         }
 
         public override async Task<IEnumerable<IMediaItem>> Play(DirectoryInfo directoryInfo)
         {
+            await EnsureInit();
+
             var mediaItems = new List<IMediaItem>();
             foreach (var file in directoryInfo.GetFiles())
             {
@@ -270,77 +296,85 @@ namespace MediaManager
             await AddMediaItemsToQueue(mediaItems, true);
 
             await MediaQueue.FirstOrDefault()?.FetchMetaData();
-            MediaBrowserManager.MediaController.GetTransportControls().Prepare();
+            MediaController.GetTransportControls().Prepare();
             return MediaQueue;
         }
 
-        public override Task<bool> PlayNext()
+        public override async Task<bool> PlayNext()
         {
-            if (AndroidMediaPlayer.Player.NextWindowIndex == AndroidMediaPlayer.Player.CurrentWindowIndex)
+            await EnsureInit();
+
+            if (Player.NextWindowIndex == Player.CurrentWindowIndex)
             {
-                SeekTo(TimeSpan.FromSeconds(0));
-                return Task.FromResult(true);
+                await SeekTo(TimeSpan.FromSeconds(0));
+                return true;
             }
 
-            if (AndroidMediaPlayer.Player.NextWindowIndex == -1)
+            if (Player.NextWindowIndex == -1)
             {
-                return Task.FromResult(false);
+                return false;
             }
 
-            MediaBrowserManager.MediaController.GetTransportControls().SkipToNext();
+            MediaController.GetTransportControls().SkipToNext();
 
-            return Task.FromResult(true);
+            return true;
         }
 
-        public override Task<bool> PlayPrevious()
+        public override async Task<bool> PlayPrevious()
         {
-            if (AndroidMediaPlayer.Player.PreviousWindowIndex == AndroidMediaPlayer.Player.CurrentWindowIndex)
+            await EnsureInit();
+
+            if (Player.PreviousWindowIndex == Player.CurrentWindowIndex)
             {
-                SeekTo(TimeSpan.FromSeconds(0));
-                return Task.FromResult(true);
+                await SeekTo(TimeSpan.FromSeconds(0));
+                return true;
             }
 
-            if (AndroidMediaPlayer.Player.PreviousWindowIndex == -1)
+            if (Player.PreviousWindowIndex == -1)
             {
-                return Task.FromResult(false);
+                return false;
             }
 
-            MediaBrowserManager.MediaController.GetTransportControls().SkipToPrevious();
+            MediaController.GetTransportControls().SkipToPrevious();
 
-            return Task.FromResult(true);
+            return true;
         }
 
-        public override Task<bool> PlayQueueItem(IMediaItem mediaItem)
+        public override async Task<bool> PlayQueueItem(IMediaItem mediaItem)
         {
+            await EnsureInit();
+
             if (!MediaQueue.Contains(mediaItem))
-                return Task.FromResult(false);
+                return false;
 
-            MediaBrowserManager.MediaController.GetTransportControls().SkipToQueueItem(MediaQueue.IndexOf(mediaItem));
-            return Task.FromResult(true);
+            MediaController.GetTransportControls().SkipToQueueItem(MediaQueue.IndexOf(mediaItem));
+            return true;
         }
 
-        public override Task SeekTo(TimeSpan position)
+        public override async Task SeekTo(TimeSpan position)
         {
-            MediaBrowserManager.MediaController.GetTransportControls().SeekTo((long)position.TotalMilliseconds);
-            return Task.CompletedTask;
+            await EnsureInit();
+
+            MediaController.GetTransportControls().SeekTo((long)position.TotalMilliseconds);
         }
 
-        public override Task Stop()
+        public override async Task Stop()
         {
-            MediaBrowserManager.MediaController.GetTransportControls().Stop();
+            await EnsureInit();
+
+            MediaController.GetTransportControls().Stop();
             (NotificationManager as MediaManager.Platforms.Android.Notifications.NotificationManager).Player = null;
-            return Task.CompletedTask;
         }
 
         public override RepeatMode RepeatMode
         {
             get
             {
-                return AndroidMediaPlayer.RepeatMode;
+                return (RepeatMode)MediaController?.RepeatMode;
             }
             set
             {
-                MediaBrowserManager.MediaController.GetTransportControls().SetRepeatMode((int)value);
+                MediaController?.GetTransportControls()?.SetRepeatMode((int)value);
             }
         }
 
@@ -348,11 +382,11 @@ namespace MediaManager
         {
             get
             {
-                return (ShuffleMode)MediaBrowserManager.MediaController.ShuffleMode;
+                return (ShuffleMode)MediaController?.ShuffleMode;
             }
             set
             {
-                MediaBrowserManager.MediaController.GetTransportControls().SetShuffleMode((int)value);
+                MediaController?.GetTransportControls()?.SetShuffleMode((int)value);
             }
         }
     }

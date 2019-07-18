@@ -7,9 +7,10 @@ namespace MediaManager
     {
         public static void Init<TMediaBrowserService>(this IMediaManager mediaManager, Context context)
         {
-            ((MediaManagerImplementation)mediaManager).Context = context;
-            ((MediaManagerImplementation)mediaManager).MediaBrowserServiceType = typeof(TMediaBrowserService);
-            mediaManager.Init();
+            var androidMediaManager = ((MediaManagerImplementation)mediaManager);
+            androidMediaManager.Context = context;
+            androidMediaManager.MediaBrowserServiceType = typeof(TMediaBrowserService);
+            androidMediaManager.Init();
         }
     }
 }

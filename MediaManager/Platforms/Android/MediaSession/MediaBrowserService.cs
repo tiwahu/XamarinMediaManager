@@ -23,7 +23,7 @@ namespace MediaManager.Platforms.Android.MediaSession
             get => (MediaManager.NotificationManager as Notifications.NotificationManager).PlayerNotificationManager;
             set => (MediaManager.NotificationManager as Notifications.NotificationManager).PlayerNotificationManager = value;
         }
-        protected MediaControllerCompat MediaController => MediaManager.MediaBrowserManager.MediaController;
+        protected MediaControllerCompat MediaController => MediaManager.MediaController;
 
         protected NotificationListener NotificationListener { get; set; }
 
@@ -209,11 +209,8 @@ namespace MediaManager.Platforms.Android.MediaSession
         public override void OnDestroy()
         {
             // Service is being killed, so make sure we release our resources
-
-            // enabling this set player to null, too...
             PlayerNotificationManager?.SetPlayer(null);
-            //PlayerNotificationManager?.Dispose();
-
+            //PlayerNotificationManager.Dispose();
             MediaManager.StateChanged -= MediaManager_StateChanged;
             MediaManager.MediaSession.Active = false;
             MediaManager.MediaSession.Release();
