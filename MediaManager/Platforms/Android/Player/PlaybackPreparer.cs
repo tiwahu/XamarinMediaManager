@@ -12,8 +12,8 @@ namespace MediaManager.Platforms.Android.Media
 {
     public class MediaSessionConnectorPlaybackPreparer : Java.Lang.Object, MediaSessionConnector.IPlaybackPreparer
     {
-        protected IExoPlayer _player;
-        protected ConcatenatingMediaSource _mediaSource;
+        protected readonly IExoPlayer _player;
+        protected readonly ConcatenatingMediaSource _mediaSource;
         protected MediaManagerImplementation MediaManager => CrossMediaManager.Android;
 
         public MediaSessionConnectorPlaybackPreparer(IExoPlayer player, ConcatenatingMediaSource mediaSource)
@@ -54,7 +54,12 @@ namespace MediaManager.Platforms.Android.Media
             var mediaItems = MediaManager.MediaQueue.Select(x => x.ToMediaSource()).ToList();
             _mediaSource.AddMediaSources(mediaItems);
 
-            _player.Prepare(_mediaSource);
+            var windowIndex = System.Math.Max(0, MediaManager.MediaQueue.CurrentIndex);
+
+            if (windowIndex >= 0 && windowIndex < mediaItems.Count)
+                _player.SeekTo(windowIndex, 0);
+
+            _player.Prepare(_mediaSource, false, false);
 
             //Only in case of Prepare set PlayWhenReady to true because we use this to load in the whole queue
             _player.PlayWhenReady = true;

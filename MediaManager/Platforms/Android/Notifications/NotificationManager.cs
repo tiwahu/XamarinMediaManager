@@ -75,15 +75,22 @@ namespace MediaManager.Platforms.Android.Notifications
                 if (Enabled && Player == null && !MediaManager.IsStopped())
                     Player = MediaManager.AndroidMediaPlayer.Player;
 
-                if (ShowNavigationControls && MediaManager.MediaQueue.Count > 1)
+                try
                 {
-                    PlayerNotificationManager.SetUseNavigationActions(true);
+                    if (ShowNavigationControls && MediaManager.MediaQueue.Count > 1)
+                    {
+                        PlayerNotificationManager?.SetUseNavigationActions(true);
+                    }
+                    else
+                    {
+                        PlayerNotificationManager?.SetUseNavigationActions(false);
+                    }
+                    PlayerNotificationManager?.Invalidate();
                 }
-                else
+                catch (ObjectDisposedException)
                 {
-                    PlayerNotificationManager.SetUseNavigationActions(false);
+                    // ignore
                 }
-                PlayerNotificationManager.Invalidate();
             }
         }
     }

@@ -54,6 +54,8 @@ namespace MediaManager
         /// <returns></returns>
         Task Play(IEnumerable<IMediaItem> items);
 
+        Task Play(IEnumerable<IMediaItem> items, int index);
+
         /// <summary>
         /// Plays a list of uri's
         /// </summary>

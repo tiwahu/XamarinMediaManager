@@ -91,6 +91,7 @@ namespace MediaManager
         public abstract Task Play(IMediaItem mediaItem);
         public abstract Task<IMediaItem> Play(string uri);
         public abstract Task Play(IEnumerable<IMediaItem> items);
+        public abstract Task Play(IEnumerable<IMediaItem> items, int index);
         public abstract Task<IEnumerable<IMediaItem>> Play(IEnumerable<string> items);
         public abstract Task<IMediaItem> Play(FileInfo file);
         public abstract Task<IEnumerable<IMediaItem>> Play(DirectoryInfo directoryInfo);

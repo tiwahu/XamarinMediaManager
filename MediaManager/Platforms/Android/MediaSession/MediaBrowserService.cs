@@ -18,7 +18,8 @@ namespace MediaManager.Platforms.Android.MediaSession
     {
         protected MediaManagerImplementation MediaManager => CrossMediaManager.Android;
         protected MediaDescriptionAdapter MediaDescriptionAdapter { get; set; }
-        protected PlayerNotificationManager PlayerNotificationManager {
+        protected PlayerNotificationManager PlayerNotificationManager
+        {
             get => (MediaManager.NotificationManager as Notifications.NotificationManager).PlayerNotificationManager;
             set => (MediaManager.NotificationManager as Notifications.NotificationManager).PlayerNotificationManager = value;
         }
@@ -65,18 +66,18 @@ namespace MediaManager.Platforms.Android.MediaSession
                 case global::MediaManager.Playback.MediaPlayerState.Loading:
                 case global::MediaManager.Playback.MediaPlayerState.Buffering:
                 case global::MediaManager.Playback.MediaPlayerState.Playing:
-                    if(!IsForeground)
+                    if (!IsForeground)
                     {
                         // NOTE: need to use specified MediaBrowserServiceType...
-                        // call it?
-                        //ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
+                        // calling it...but it is commented out upstream.
+                        ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
 
                         PlayerNotificationManager?.SetOngoing(true);
                         PlayerNotificationManager?.Invalidate();
 
                         //TODO: This might need to be called: https://stackoverflow.com/questions/44425584/context-startforegroundservice-did-not-then-call-service-startforeground
-                        // call it?
-                        //StartForeground(ForegroundNotificationId, _notification);
+                        // calling it...but it is commented out upstream.
+                        StartForeground(ForegroundNotificationId, _notification);
 
                         IsForeground = true;
                     }
@@ -84,8 +85,13 @@ namespace MediaManager.Platforms.Android.MediaSession
                 case global::MediaManager.Playback.MediaPlayerState.Paused:
                     if (IsForeground)
                     {
-                        StopForeground(false);
-                        PlayerNotificationManager?.SetOngoing(false);
+                        //? option to not stop foreground when paused?
+                        if (!(this.KeepAliveWhenPaused ?? false))
+                        {
+                            StopForeground(false);
+                            PlayerNotificationManager?.SetOngoing(false);
+                        }
+
                         IsForeground = false;
                     }
                     break;
@@ -115,6 +121,8 @@ namespace MediaManager.Platforms.Android.MediaSession
 
         protected virtual bool? UseChronometer => null;
 
+        protected virtual bool? KeepAliveWhenPaused => null;
+
 
         protected virtual void PrepareNotificationManager()
         {
@@ -131,8 +139,10 @@ namespace MediaManager.Platforms.Android.MediaSession
             NotificationListener.OnNotificationStartedImpl = (notificationId, notification) =>
             {
                 _notification = notification;
+
                 // NOTE: need to use specified MediaBrowserServiceType...
                 ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
+
                 StartForeground(notificationId, notification);
                 IsForeground = true;
             };
@@ -146,7 +156,7 @@ namespace MediaManager.Platforms.Android.MediaSession
 
             PlayerNotificationManager.SetFastForwardIncrementMs((long)MediaManager.StepSize.TotalMilliseconds);
             PlayerNotificationManager.SetRewindIncrementMs((long)MediaManager.StepSize.TotalMilliseconds);
-            
+
             //? deprecated?
             PlayerNotificationManager.SetNotificationListener(NotificationListener);
 
@@ -155,7 +165,7 @@ namespace MediaManager.Platforms.Android.MediaSession
             PlayerNotificationManager.SetUsePlayPauseActions(MediaManager.NotificationManager.ShowPlayPauseControls);
             PlayerNotificationManager.SetUseNavigationActions(MediaManager.NotificationManager.ShowNavigationControls);
 
-            //PlayerNotificationManager.SetUseActionsInComapactView(true);
+            //PlayerNotificationManager.SetUseActionsInCompactView(true);
 
             // CUSTOM SUPPORT
             PlayerNotificationManager.SetVisibility((int)NotificationVisibility.Public);
@@ -200,13 +210,14 @@ namespace MediaManager.Platforms.Android.MediaSession
         {
             // Service is being killed, so make sure we release our resources
 
-            // enabling this disposal, too...
-            PlayerNotificationManager.SetPlayer(null);
-            PlayerNotificationManager.Dispose();
+            // enabling this set player to null, too...
+            PlayerNotificationManager?.SetPlayer(null);
+            //PlayerNotificationManager?.Dispose();
 
             MediaManager.StateChanged -= MediaManager_StateChanged;
             MediaManager.MediaSession.Active = false;
             MediaManager.MediaSession.Release();
+
             StopForeground(true);
             IsForeground = false;
         }

@@ -239,6 +239,16 @@ namespace MediaManager
             return;
         }
 
+        public override async Task Play(IEnumerable<IMediaItem> items, int index)
+        {
+            await AddMediaItemsToQueue(items, true);
+
+            MediaQueue.CurrentIndex = index;
+
+            MediaBrowserManager.MediaController.GetTransportControls().Prepare();
+            return;
+        }
+
         public override async Task<IMediaItem> Play(FileInfo file)
         {
             var mediaItem = await MediaExtractor.CreateMediaItem(file);
