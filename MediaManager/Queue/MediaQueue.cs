@@ -92,6 +92,8 @@ namespace MediaManager.Queue
             }
         }
 
+        public TimeSpan? CurrentPosition { get; set; }
+
         private ShuffleMode _shuffleMode;
         private IList<int> _shuffledIndexes;
 

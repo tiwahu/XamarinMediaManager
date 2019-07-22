@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using MediaManager.Media;
@@ -50,6 +51,9 @@ namespace MediaManager.Queue
         
         //TODO: Maybe rename to just Index
         int CurrentIndex { get; set; }
+
+        /// <summary>Position within the current item in queue.</summary>
+        TimeSpan? CurrentPosition { get; set; }
 
         /// <summary>
         /// Get the current track from the Queue

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -16,6 +17,8 @@ namespace MediaManager.Platforms.Android.MediaSession
     //[IntentFilter(new[] { global::Android.Service.Media.MediaBrowserService.ServiceInterface })]
     public abstract class MediaBrowserService : MediaBrowserServiceCompat
     {
+        protected Func<string, IEnumerable<MediaManager.Media.IMediaItem>> ItemsForMediaId { get; set; }
+
         protected MediaManagerImplementation MediaManager => CrossMediaManager.Android;
         protected MediaDescriptionAdapter MediaDescriptionAdapter { get; set; }
         protected PlayerNotificationManager PlayerNotificationManager

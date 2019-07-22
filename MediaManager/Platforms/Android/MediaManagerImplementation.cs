@@ -257,17 +257,25 @@ namespace MediaManager
 
             await AddMediaItemsToQueue(items, true);
 
+            MediaQueue.CurrentIndex = 0;
+            MediaQueue.CurrentPosition = TimeSpan.Zero;
+
             MediaController.GetTransportControls().Prepare();
             return;
         }
 
         public override async Task Play(IEnumerable<IMediaItem> items, int index)
         {
+            await EnsureInit();
+
+            MediaController.GetTransportControls().Stop();
+
             await AddMediaItemsToQueue(items, true);
 
             MediaQueue.CurrentIndex = index;
+            MediaQueue.CurrentPosition = TimeSpan.Zero;
 
-            MediaBrowserManager.MediaController.GetTransportControls().Prepare();
+            MediaController.GetTransportControls().Prepare();
             return;
         }
 

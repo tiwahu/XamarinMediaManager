@@ -49,14 +49,15 @@ namespace MediaManager.Platforms.Android.Media
             _mediaSource.Clear();
 
             var mediaItems = MediaManager.MediaQueue.Select(x => x.ToMediaSource()).ToList();
+
             _mediaSource.AddMediaSources(mediaItems);
 
-            var windowIndex = System.Math.Max(0, MediaManager.MediaQueue.CurrentIndex);
+            var windowIndex = System.Math.Max(0, System.Math.Min(MediaManager.MediaQueue.CurrentIndex, mediaItems.Count - 1));
+            var positionMs = (long)(MediaManager.MediaQueue.CurrentPosition?.TotalMilliseconds ?? C.TimeUnset);
 
-            if (windowIndex >= 0 && windowIndex < mediaItems.Count)
-                _player.SeekTo(windowIndex, 0);
+            _player.SeekTo(windowIndex, positionMs);
 
-            _player.Prepare(_mediaSource, false, false);
+            _player.Prepare(_mediaSource, !(windowIndex > 0 || positionMs > 0), true);
 
             //Only in case of Prepare set PlayWhenReady to true because we use this to load in the whole queue
             _player.PlayWhenReady = true;
@@ -66,13 +67,26 @@ namespace MediaManager.Platforms.Android.Media
         {
             _mediaSource.Clear();
             int windowIndex = 0;
-            foreach (var mediaItem in MediaManager.MediaQueue)
-            {
-                if (mediaItem.MediaId == mediaId)
-                    windowIndex = MediaManager.MediaQueue.IndexOf(mediaItem);
 
-                _mediaSource.AddMediaSource(mediaItem.ToMediaSource());
+            var index = MediaManager.MediaQueue
+                .Select((o, i) => new { Value = o, Index = i })
+                .FirstOrDefault(o => o.Value.MediaId == mediaId)?.Index;
+
+            if (index.HasValue)
+            {
+                windowIndex = index.Value;
+
+                foreach (var mediaItem in MediaManager.MediaQueue)
+                {
+                    _mediaSource.AddMediaSource(mediaItem.ToMediaSource());
+                }
             }
+            else
+            {
+                // lookup playlist for media id...via MediaManager?
+
+            }
+
             _player.Prepare(_mediaSource);
             _player.SeekTo(windowIndex, 0);
         }
