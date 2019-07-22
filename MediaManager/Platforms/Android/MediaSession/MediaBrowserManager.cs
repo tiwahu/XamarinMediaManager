@@ -20,11 +20,12 @@ namespace MediaManager.Platforms.Android.MediaSession
         protected MediaBrowserCompat MediaBrowser { get; set; }
         protected MediaBrowserConnectionCallback MediaBrowserConnectionCallback { get; set; }
         protected MediaControllerCallback MediaControllerCallback { get; set; }
+        protected virtual Java.Lang.Class ServiceType { get; }
         protected MediaBrowserSubscriptionCallback MediaBrowserSubscriptionCallback { get; set; }
 
-        protected virtual Java.Lang.Class ServiceType { get; }
 
-        protected bool IsInitialized { get; private set; } = false;
+        protected bool IsConnected { get; private set; } = false;
+
         protected Context Context => MediaManager.Context;
 
         public MediaBrowserManager(Type mediaBrowserServiceType)
@@ -35,8 +36,10 @@ namespace MediaManager.Platforms.Android.MediaSession
 
         public async Task<bool> Init()
         {
-            if (_tcs?.Task != null)
+            if (_tcs?.Task != null && !_tcs.Task.IsCompleted)
                 return await _tcs.Task;
+            else if (IsConnected)
+                return true;
 
             _tcs = new TaskCompletionSource<bool>();
 
@@ -51,16 +54,6 @@ namespace MediaManager.Platforms.Android.MediaSession
                     OnPlaybackStateChangedImpl = state =>
                     {
                         MediaManager.State = state.ToMediaPlayerState();
-                        /*if(MediaManager.State == MediaPlayerState.Stopped)
-                        {
-                            //TODO: call UnregisterCallback(MediaBrowserSubscriptionCallback) and MediaBrowser.Disconnect() somewhere
-                            MediaBrowser.Unsubscribe(MediaBrowser.Root, MediaBrowserSubscriptionCallback);
-                            MediaBrowser.Disconnect();
-                            MediaController.UnregisterCallback(MediaControllerCallback);
-                            MediaController.Dispose();
-                            MediaController = null;
-                            IsInitialized = false;
-                        }*/
                     },
                     OnSessionEventChangedImpl = (string @event, Bundle extras) =>
                     {
@@ -68,7 +61,25 @@ namespace MediaManager.Platforms.Android.MediaSession
                     },
                     OnSessionDestroyedImpl = () =>
                     {
-                        //Do nothing for now
+                        MediaBrowserConnectionCallback.OnConnectionSuspended();
+                        MediaBrowserConnectionCallback.Dispose();
+                        MediaBrowserConnectionCallback = null;
+
+                        MediaBrowser.Unsubscribe(MediaBrowser.Root, MediaBrowserSubscriptionCallback);
+                        MediaBrowserSubscriptionCallback.Dispose();
+                        MediaBrowserSubscriptionCallback = null;
+
+                        MediaBrowser.Disconnect();
+                        MediaBrowser.Dispose();
+                        MediaBrowser = null;
+
+                        MediaManager.MediaController.UnregisterCallback(MediaControllerCallback);
+                        MediaControllerCallback.Dispose();
+                        MediaControllerCallback = null;
+
+                        MediaManager.MediaController.Dispose();
+                        MediaManager.MediaController = null;
+                        IsConnected = false;
                     },
                     BinderDiedImpl = () =>
                     {
@@ -88,8 +99,8 @@ namespace MediaManager.Platforms.Android.MediaSession
                 {
                     OnConnectedImpl = () =>
                     {
-                        var mediaController = MediaManager.MediaController = new MediaControllerCompat(Context, MediaBrowser.SessionToken);
-                        mediaController.RegisterCallback(this.MediaControllerCallback);
+                        var mediaController = MediaManager.MediaController = new MediaControllerCompat(Context.ApplicationContext, MediaBrowser.SessionToken);
+                        mediaController.RegisterCallback(MediaControllerCallback);
 
                         if (Context is Activity activity)
                             MediaControllerCompat.SetMediaController(activity, mediaController);
@@ -101,29 +112,31 @@ namespace MediaManager.Platforms.Android.MediaSession
 
                         this.MediaBrowser.Subscribe(MediaBrowser.Root, this.MediaBrowserSubscriptionCallback);
 
-                        IsInitialized = true;
-                        _tcs.SetResult(IsInitialized);
+                        IsConnected = true;
+                        _tcs.SetResult(IsConnected);
+                        _tcs = null;
                     },
                     OnConnectionFailedImpl = () =>
                     {
-                        IsInitialized = false;
-                        _tcs.SetResult(IsInitialized);
+                        IsConnected = false;
+                        _tcs.SetResult(IsConnected);
+                        _tcs = null;
                     },
                     OnConnectionSuspendedImpl = () =>
                     {
-                        IsInitialized = false;
+                        IsConnected = false;
                     }
                 };
 
-                this.MediaBrowser = new MediaBrowserCompat(this.Context,
+                MediaBrowser = new MediaBrowserCompat(Context.ApplicationContext,
                     new ComponentName(
-                        this.Context,
-                        this.ServiceType),
-                        this.MediaBrowserConnectionCallback,
+                        Context.ApplicationContext,
+                        ServiceType),
+                        MediaBrowserConnectionCallback,
                         null);
             }
 
-            if (!this.IsInitialized)
+            if (!IsConnected)
             {
                 MediaBrowser.Connect();
             }

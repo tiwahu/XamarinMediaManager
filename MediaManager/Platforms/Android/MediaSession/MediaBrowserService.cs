@@ -33,7 +33,6 @@ namespace MediaManager.Platforms.Android.MediaSession
         public readonly string ChannelId = "audio_channel";
         public readonly int ForegroundNotificationId = 1;
         public bool IsForeground = false;
-        protected Notification _notification;
 
         public MediaBrowserService()
         {
@@ -59,8 +58,9 @@ namespace MediaManager.Platforms.Android.MediaSession
             {
                 case global::MediaManager.Playback.MediaPlayerState.Failed:
                 case global::MediaManager.Playback.MediaPlayerState.Stopped:
-                    if (IsForeground && MediaController.PlaybackState.State == PlaybackStateCompat.StateStopped)
+                    if (IsForeground && MediaController.PlaybackState.State == PlaybackStateCompat.StateNone)
                     {
+                        //ServiceCompat.StopForeground(this, ServiceCompat.StopForegroundRemove);
                         StopForeground(true);
                         StopSelf();
                         IsForeground = false;
@@ -73,14 +73,16 @@ namespace MediaManager.Platforms.Android.MediaSession
                     {
                         // NOTE: need to use specified MediaBrowserServiceType...
                         // calling it...but it is commented out upstream.
-                        ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
+                        // the comment is removed now, so maybe not needed.
+                        //ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
 
                         PlayerNotificationManager?.SetOngoing(true);
                         PlayerNotificationManager?.Invalidate();
 
                         //TODO: This might need to be called: https://stackoverflow.com/questions/44425584/context-startforegroundservice-did-not-then-call-service-startforeground
                         // calling it...but it is commented out upstream.
-                        StartForeground(ForegroundNotificationId, _notification);
+                        // the comment is removed now, too.
+                        //StartForeground(ForegroundNotificationId, _notification);
 
                         IsForeground = true;
                     }
@@ -88,11 +90,13 @@ namespace MediaManager.Platforms.Android.MediaSession
                 case global::MediaManager.Playback.MediaPlayerState.Paused:
                     if (IsForeground)
                     {
+                        //ServiceCompat.StopForeground(this, ServiceCompat.StopForegroundDetach);
                         //? option to not stop foreground when paused?
                         if (!(this.KeepAliveWhenPaused ?? false))
                         {
                             StopForeground(false);
                             PlayerNotificationManager?.SetOngoing(false);
+                            PlayerNotificationManager?.Invalidate();
                         }
 
                         IsForeground = false;
@@ -105,8 +109,7 @@ namespace MediaManager.Platforms.Android.MediaSession
 
         protected virtual void PrepareMediaSession()
         {
-            var mediaSession = new MediaSessionCompat(this, nameof(MediaBrowserService));
-            MediaManager.MediaSession = mediaSession;
+            var mediaSession = MediaManager.MediaSession = new MediaSessionCompat(this, nameof(MediaBrowserService));
             mediaSession.SetSessionActivity(MediaManager.SessionActivityPendingIntent);
             mediaSession.Active = true;
 
@@ -141,10 +144,8 @@ namespace MediaManager.Platforms.Android.MediaSession
             NotificationListener = new NotificationListener();
             NotificationListener.OnNotificationStartedImpl = (notificationId, notification) =>
             {
-                _notification = notification;
-
                 // NOTE: need to use specified MediaBrowserServiceType...
-                ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
+                ContextCompat.StartForegroundService(ApplicationContext, new Intent(ApplicationContext, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
 
                 StartForeground(notificationId, notification);
                 IsForeground = true;
@@ -153,6 +154,8 @@ namespace MediaManager.Platforms.Android.MediaSession
             {
                 //TODO: in new exoplayer use StopForeground(false) or use dismissedByUser
                 StopForeground(true);
+                //ServiceCompat.StopForeground(this, ServiceCompat.StopForegroundRemove);
+
                 StopSelf();
                 IsForeground = false;
             };
@@ -203,23 +206,41 @@ namespace MediaManager.Platforms.Android.MediaSession
             return StartCommandResult.Sticky;
         }
 
-        public override void OnTaskRemoved(Intent rootIntent)
+        public override async void OnTaskRemoved(Intent rootIntent)
         {
+            StopForeground(true);
+            await MediaManager.Stop();
             base.OnTaskRemoved(rootIntent);
-            MediaManager.Stop();
         }
 
         public override void OnDestroy()
         {
-            // Service is being killed, so make sure we release our resources
-            PlayerNotificationManager?.SetPlayer(null);
-            //PlayerNotificationManager.Dispose();
-            MediaManager.StateChanged -= MediaManager_StateChanged;
-            MediaManager.MediaSession.Active = false;
-            MediaManager.MediaSession.Release();
+            //ServiceCompat.StopForeground(this, ServiceCompat.StopForegroundDetach);
 
             StopForeground(true);
+            MediaManager.StateChanged -= MediaManager_StateChanged;
+
+            (MediaManager.NotificationManager as Notifications.NotificationManager).Player = null;
+
+            MediaDescriptionAdapter.Dispose();
+            MediaDescriptionAdapter = null;
+
+            // Service is being killed, so make sure we release our resources
+            PlayerNotificationManager?.SetNotificationListener(null);
+            PlayerNotificationManager?.SetPlayer(null);
+            PlayerNotificationManager?.Dispose();
+            PlayerNotificationManager = null;
+
+            NotificationListener.Dispose();
+            NotificationListener = null;
+
+            MediaManager.MediaSession.Active = false;
+            MediaManager.MediaSession.Release();
+            //MediaManager.MediaSession.Dispose();
+            MediaManager.MediaSession = null;
+
             IsForeground = false;
+            base.OnDestroy();
         }
 
         public override BrowserRoot OnGetRoot(string clientPackageName, int clientUid, Bundle rootHints)
