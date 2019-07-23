@@ -56,7 +56,7 @@ namespace MediaManager.Platforms.Android.Media
         protected QueueNavigator QueueNavigator { get; set; }
         protected ConcatenatingMediaSource MediaSource { get; set; }
         protected QueueDataAdapter QueueDataAdapter { get; set; }
-        protected QueueEditorMediaSourceFactory MediaSourceFactory { get; set; }
+        protected QueueMediaSourceFactory MediaSourceFactory { get; set; }
         protected TimelineQueueEditor TimelineQueueEditor { get; set; }
         protected MediaSessionConnectorPlaybackPreparer PlaybackPreparer { get; set; }
         public PlayerEventListener PlayerEventListener { get; set; }
@@ -110,14 +110,7 @@ namespace MediaManager.Platforms.Android.Media
                 UserAgent = Util.GetUserAgent(Context, Context.PackageName);
             
             HttpDataSourceFactory = new DefaultHttpDataSourceFactory(UserAgent);
-
-            if (RequestHeaders?.Count > 0)
-            {
-                foreach (var item in RequestHeaders)
-                {
-                    HttpDataSourceFactory.DefaultRequestProperties.Set(item.Key, item.Value);
-                }
-            }
+            UpdateRequestHeaders();
 
             MediaSource = new ConcatenatingMediaSource();
 
@@ -220,6 +213,17 @@ namespace MediaManager.Platforms.Android.Media
                 PlayerView.Player = Player;
         }
 
+        public virtual void UpdateRequestHeaders()
+        {
+            if (RequestHeaders?.Count > 0)
+            {
+                foreach (var item in RequestHeaders)
+                {
+                    HttpDataSourceFactory?.DefaultRequestProperties.Set(item.Key, item.Value);
+                }
+            }
+        }
+
         public virtual void ConnectMediaSession()
         {
             if (MediaSession == null)
@@ -232,7 +236,7 @@ namespace MediaManager.Platforms.Android.Media
             MediaSessionConnector.SetQueueNavigator(QueueNavigator);
 
             QueueDataAdapter = new QueueDataAdapter(MediaSource);
-            MediaSourceFactory = new QueueEditorMediaSourceFactory();
+            MediaSourceFactory = new QueueMediaSourceFactory();
             TimelineQueueEditor = new TimelineQueueEditor(MediaSession.Controller, MediaSource, QueueDataAdapter, MediaSourceFactory);
             MediaSessionConnector.SetQueueEditor(TimelineQueueEditor);
 

@@ -63,5 +63,7 @@ namespace MediaManager.Queue
         string Title { get; set; }
 
         ShuffleMode ShuffleMode { get; set; }
+
+        void Move(int oldIndex, int newIndex);
     }
 }
