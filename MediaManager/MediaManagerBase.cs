@@ -55,9 +55,10 @@ namespace MediaManager
             set => SetProperty(ref _mediaQueue, value);
         }
 
-        public virtual void Init()
+        public virtual Task Init()
         {
             IsInitialized = true;
+            return Task.CompletedTask;
         }
 
         public abstract IMediaPlayer MediaPlayer { get; set; }

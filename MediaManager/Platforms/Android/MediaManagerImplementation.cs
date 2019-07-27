@@ -112,9 +112,9 @@ namespace MediaManager
             }
         }
 
-        public override void Init()
+        public override async Task Init()
         {
-            EnsureInit();
+            await EnsureInit();
         }
 
         public async Task EnsureInit()
