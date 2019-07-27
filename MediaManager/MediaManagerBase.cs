@@ -106,6 +106,7 @@ namespace MediaManager
         }
 
         public bool ClearQueueOnPlay { get; set; } = true;
+        public bool AutoPlay { get; set; } = true;
 
         public virtual Task Play()
         {
@@ -151,7 +152,7 @@ namespace MediaManager
             return mediaItemToPlay;
         }
 
-        public virtual async Task<IEnumerable<IMediaItem>> Play(IEnumerable<string> items)
+        public virtual async Task<IMediaItem> Play(IEnumerable<string> items)
         {
             var mediaItems = new List<IMediaItem>();
             foreach (var uri in items)
@@ -162,7 +163,7 @@ namespace MediaManager
 
             var mediaItemToPlay = await PrepareQueueForPlayback(mediaItems.ToArray());
             await PlayAsCurrent(mediaItemToPlay);
-            return mediaItems;
+            return mediaItemToPlay;
         }
 
         public virtual async Task<IMediaItem> Play(FileInfo file)
@@ -174,7 +175,7 @@ namespace MediaManager
             return mediaItem;
         }
 
-        public virtual async Task<IEnumerable<IMediaItem>> Play(DirectoryInfo directoryInfo)
+        public virtual async Task<IMediaItem> Play(DirectoryInfo directoryInfo)
         {
             var mediaItems = new List<IMediaItem>();
             foreach (var file in directoryInfo.GetFiles())
@@ -184,12 +185,13 @@ namespace MediaManager
             }
             var mediaItemToPlay = await PrepareQueueForPlayback(mediaItems.ToArray());
             await PlayAsCurrent(mediaItemToPlay);
-            return mediaItems;
+            return mediaItemToPlay;
         }
 
         public virtual async Task PlayAsCurrent(IMediaItem mediaItem)
         {
-            await MediaPlayer.Play(mediaItem);
+            if(AutoPlay)
+                await MediaPlayer.Play(mediaItem);
         }
 
         public virtual Task<IMediaItem> PrepareQueueForPlayback(IEnumerable<IMediaItem> items, int? index = null)
