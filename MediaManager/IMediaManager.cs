@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using MediaManager.Media;
+using MediaManager.Notifications;
 using MediaManager.Playback;
+using MediaManager.Player;
 using MediaManager.Queue;
 using MediaManager.Volume;
 
@@ -39,7 +41,7 @@ namespace MediaManager
         /// <summary>
         /// Plays a media item
         /// </summary>
-        Task Play(IMediaItem mediaItem);
+        Task<IMediaItem> Play(IMediaItem mediaItem);
 
         /// <summary>
         /// Plays an uri that can be both remote or local
@@ -53,7 +55,7 @@ namespace MediaManager
         /// </summary>
         /// <param name="items"></param>
         /// <returns></returns>
-        Task Play(IEnumerable<IMediaItem> items);
+        Task<IMediaItem> Play(IEnumerable<IMediaItem> items);
 
         Task Play(IEnumerable<IMediaItem> items, int index);
 

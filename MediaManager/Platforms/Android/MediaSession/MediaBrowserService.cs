@@ -4,7 +4,6 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
-using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using Android.Support.V4.Media;
 using Android.Support.V4.Media.Session;
@@ -56,8 +55,8 @@ namespace MediaManager.Platforms.Android.MediaSession
         {
             switch (e.State)
             {
-                case global::MediaManager.Playback.MediaPlayerState.Failed:
-                case global::MediaManager.Playback.MediaPlayerState.Stopped:
+                case global::MediaManager.Player.MediaPlayerState.Failed:
+                case global::MediaManager.Player.MediaPlayerState.Stopped:
                     if (IsForeground && MediaController.PlaybackState.State == PlaybackStateCompat.StateNone)
                     {
                         //ServiceCompat.StopForeground(this, ServiceCompat.StopForegroundRemove);
@@ -66,28 +65,18 @@ namespace MediaManager.Platforms.Android.MediaSession
                         IsForeground = false;
                     }
                     break;
-                case global::MediaManager.Playback.MediaPlayerState.Loading:
-                case global::MediaManager.Playback.MediaPlayerState.Buffering:
-                case global::MediaManager.Playback.MediaPlayerState.Playing:
+                case global::MediaManager.Player.MediaPlayerState.Loading:
+                case global::MediaManager.Player.MediaPlayerState.Buffering:
+                case global::MediaManager.Player.MediaPlayerState.Playing:
                     if (!IsForeground)
                     {
-                        // NOTE: need to use specified MediaBrowserServiceType...
-                        // calling it...but it is commented out upstream.
-                        // the comment is removed now, so maybe not needed.
-                        //ContextCompat.StartForegroundService(MediaManager.Context, new Intent(MediaManager.Context, Java.Lang.Class.FromType(MediaManager.MediaBrowserServiceType)));
-
                         PlayerNotificationManager?.SetOngoing(true);
                         PlayerNotificationManager?.Invalidate();
-
-                        //TODO: This might need to be called: https://stackoverflow.com/questions/44425584/context-startforegroundservice-did-not-then-call-service-startforeground
-                        // calling it...but it is commented out upstream.
-                        // the comment is removed now, too.
-                        //StartForeground(ForegroundNotificationId, _notification);
 
                         IsForeground = true;
                     }
                     break;
-                case global::MediaManager.Playback.MediaPlayerState.Paused:
+                case global::MediaManager.Player.MediaPlayerState.Paused:
                     if (IsForeground)
                     {
                         //ServiceCompat.StopForeground(this, ServiceCompat.StopForegroundDetach);

@@ -1,67 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Android.Content.Res;
 using Android.Graphics;
 using Android.Media;
 using MediaManager.Media;
 
-namespace MediaManager.Platforms.Android
+namespace MediaManager.Platforms.Android.Media
 {
-    public class MediaExtractor : IMediaExtractor
+    public class MediaExtractor : MediaExtractorBase, IMediaExtractor
     {
         protected MediaManagerImplementation MediaManager => CrossMediaManager.Android;
         protected Resources Resources => Resources.System;
-        protected Dictionary<string, string> RequestHeaders => MediaManager.RequestHeaders;
 
         public MediaExtractor()
         {
         }
 
-        public virtual async Task<IMediaItem> CreateMediaItem(string url)
-        {
-            IMediaItem mediaItem = new MediaItem(url);
-            try
-            {
-                var metaRetriever = new MediaMetadataRetriever();
-                await metaRetriever.SetDataSourceAsync(url, RequestHeaders);
-                mediaItem = await ExtractMediaInfo(metaRetriever, mediaItem);
-            }
-            catch (Exception)
-            {
-            }
-            return mediaItem;
-        }
-
-        public virtual async Task<IMediaItem> CreateMediaItem(FileInfo file)
-        {
-            IMediaItem mediaItem = new MediaItem(file.FullName);
-            try
-            {
-                var metaRetriever = new MediaMetadataRetriever();
-
-                var javaFile = new Java.IO.File(file.FullName);
-                var inputStream = new Java.IO.FileInputStream(javaFile);
-                await metaRetriever.SetDataSourceAsync(inputStream.FD);
-                mediaItem = await ExtractMediaInfo(metaRetriever, mediaItem);
-            }
-            catch (Exception)
-            {
-            }
-            return mediaItem;
-        }
-
-        public virtual async Task<IMediaItem> CreateMediaItem(IMediaItem mediaItem)
+        public override async Task<IMediaItem> ExtractMetadata(IMediaItem mediaItem)
         {
             try
             {
                 var metaRetriever = new MediaMetadataRetriever();
-                await metaRetriever.SetDataSourceAsync(mediaItem.MediaUri, RequestHeaders);
-                mediaItem = await ExtractMediaInfo(metaRetriever, mediaItem);
+
+                switch (mediaItem.MediaLocation)
+                {
+                    case MediaLocation.Embedded:
+                    case MediaLocation.FileSystem:
+                        await metaRetriever.SetDataSourceAsync(mediaItem.MediaUri);
+                        break;
+                    default:
+                        await metaRetriever.SetDataSourceAsync(mediaItem.MediaUri, RequestHeaders);
+                        break;
+                }
+
+                return await ExtractMediaInfo(metaRetriever, mediaItem).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch
             {
+
             }
             return mediaItem;
         }
@@ -81,7 +57,7 @@ namespace MediaManager.Platforms.Android
                 mediaItem.Author = mediaMetadataRetriever.ExtractMetadata(MetadataKey.Author);
 
             var trackNumber = mediaMetadataRetriever.ExtractMetadata(MetadataKey.CdTrackNumber);
-            if (!string.IsNullOrEmpty(trackNumber) && int.TryParse(trackNumber, out int trackNumberResult))
+            if (!string.IsNullOrEmpty(trackNumber) && int.TryParse(trackNumber, out var trackNumberResult))
                 mediaItem.TrackNumber = trackNumberResult;
 
             if (string.IsNullOrEmpty(mediaItem.Compilation))
@@ -94,18 +70,18 @@ namespace MediaManager.Platforms.Android
                 mediaItem.Date = mediaMetadataRetriever.ExtractMetadata(MetadataKey.Date);
 
             var discNumber = mediaMetadataRetriever.ExtractMetadata(MetadataKey.DiscNumber);
-            if (!string.IsNullOrEmpty(discNumber) && int.TryParse(discNumber, out int discNumberResult))
+            if (!string.IsNullOrEmpty(discNumber) && int.TryParse(discNumber, out var discNumberResult))
                 mediaItem.DiscNumber = discNumberResult;
 
             var duration = mediaMetadataRetriever.ExtractMetadata(MetadataKey.Duration);
-            if (!string.IsNullOrEmpty(duration) && int.TryParse(duration, out int durationResult))
+            if (!string.IsNullOrEmpty(duration) && int.TryParse(duration, out var durationResult))
                 mediaItem.Duration = TimeSpan.FromMilliseconds(durationResult);
 
             if (string.IsNullOrEmpty(mediaItem.Genre))
                 mediaItem.Genre = mediaMetadataRetriever.ExtractMetadata(MetadataKey.Genre);
 
             var numTracks = mediaMetadataRetriever.ExtractMetadata(MetadataKey.NumTracks);
-            if (!string.IsNullOrEmpty(numTracks) && int.TryParse(numTracks, out int numTracksResult))
+            if (!string.IsNullOrEmpty(numTracks) && int.TryParse(numTracks, out var numTracksResult))
                 mediaItem.NumTracks = numTracksResult;
 
             if (string.IsNullOrEmpty(mediaItem.Title))
@@ -115,7 +91,7 @@ namespace MediaManager.Platforms.Android
                 mediaItem.Writer = mediaMetadataRetriever.ExtractMetadata(MetadataKey.Writer);
 
             var year = mediaMetadataRetriever.ExtractMetadata(MetadataKey.Year);
-            if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int yearResult))
+            if (!string.IsNullOrEmpty(year) && int.TryParse(year, out var yearResult))
                 mediaItem.Year = yearResult;
 
             byte[] imageByteArray = null;
@@ -148,15 +124,9 @@ namespace MediaManager.Platforms.Android
             return mediaItem;
         }
 
-        public Task<object> RetrieveMediaItemArt(IMediaItem mediaItem)
-        {
-            //TODO: move cover in here
-            return null;
-        }
-
         protected virtual Bitmap GetTrackCover(IMediaItem currentTrack)
         {
-            string albumFolder = GetCurrentSongFolder(currentTrack);
+            var albumFolder = GetCurrentSongFolder(currentTrack);
             if (albumFolder == null)
                 return null;
 
@@ -165,7 +135,7 @@ namespace MediaManager.Platforms.Android
                 albumFolder += "/";
             }
 
-            System.Uri baseUri = new System.Uri(albumFolder);
+            var baseUri = new System.Uri(albumFolder);
             var albumArtPath = TryGetAlbumArtPathByFilename(baseUri, "Folder.jpg");
             if (albumArtPath == null)
             {
@@ -178,14 +148,14 @@ namespace MediaManager.Platforms.Android
                 }
             }
 
-            Bitmap bitmap = BitmapFactory.DecodeFile(albumArtPath);
+            var bitmap = BitmapFactory.DecodeFile(albumArtPath);
             return bitmap ?? BitmapFactory.DecodeResource(Resources, MediaManager.NotificationIconResource);
         }
 
         protected virtual string TryGetAlbumArtPathByFilename(System.Uri baseUri, string filename)
         {
-            System.Uri testUri = new System.Uri(baseUri, filename);
-            string testPath = testUri.LocalPath;
+            var testUri = new System.Uri(baseUri, filename);
+            var testPath = testUri.LocalPath;
             if (System.IO.File.Exists(testPath))
                 return testPath;
             else
@@ -198,6 +168,11 @@ namespace MediaManager.Platforms.Android
                 return null;
 
             return System.IO.Path.GetDirectoryName(currentFile.MediaUri);
+        }
+
+        public override Task<object> RetrieveMediaItemArt(IMediaItem mediaItem)
+        {
+            return null;
         }
     }
 }

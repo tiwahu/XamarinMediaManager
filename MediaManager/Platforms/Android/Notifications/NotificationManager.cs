@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Android.App;
-using Android.Support.V4.Content;
-using Com.Google.Android.Exoplayer2;
+﻿using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.UI;
-using MediaManager.Platforms.Android.Media;
+using MediaManager.Notifications;
 
 namespace MediaManager.Platforms.Android.Notifications
 {

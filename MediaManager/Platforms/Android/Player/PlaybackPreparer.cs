@@ -6,9 +6,9 @@ using Android.Support.V4.Media.Session;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.Ext.Mediasession;
 using Com.Google.Android.Exoplayer2.Source;
-using Java.Lang;
+using MediaManager.Platforms.Android.Media;
 
-namespace MediaManager.Platforms.Android.Media
+namespace MediaManager.Platforms.Android.Player
 {
     public class MediaSessionConnectorPlaybackPreparer : Java.Lang.Object, MediaSessionConnector.IPlaybackPreparer
     {
@@ -104,7 +104,7 @@ namespace MediaManager.Platforms.Android.Media
         public void OnPrepareFromUri(global::Android.Net.Uri mediaUri, Bundle p1)
         {
             _mediaSource.Clear();
-            int windowIndex = 0;
+            var windowIndex = 0;
             foreach (var mediaItem in MediaManager.MediaQueue)
             {
                 var uri = global::Android.Net.Uri.Parse(mediaItem.MediaUri);

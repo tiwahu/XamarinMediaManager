@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MediaManager.Media;
-using MediaManager.Playback;
 using MediaManager.Video;
 
-namespace MediaManager
+namespace MediaManager.Player
 {
     public delegate void BeforePlayingEventHandler(object sender, MediaPlayerEventArgs e);
 

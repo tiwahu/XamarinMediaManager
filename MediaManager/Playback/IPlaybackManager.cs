@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using MediaManager.Media;
+using MediaManager.Player;
 using MediaManager.Queue;
 
 namespace MediaManager.Playback
@@ -48,6 +49,8 @@ namespace MediaManager.Playback
         RepeatMode RepeatMode { get; set; }
 
         ShuffleMode ShuffleMode { get; set; }
+
+        bool ClearQueueOnPlay { get; set; }
 
         /// <summary>
         /// Plays the current MediaItem
