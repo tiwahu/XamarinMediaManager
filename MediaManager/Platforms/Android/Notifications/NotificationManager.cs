@@ -1,4 +1,5 @@
-﻿using Com.Google.Android.Exoplayer2;
+﻿using System;
+using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.UI;
 using MediaManager.Notifications;
 

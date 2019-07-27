@@ -128,7 +128,7 @@ namespace MediaManager
 
         public virtual async Task<IMediaItem> Play(IMediaItem mediaItem)
         {
-            var mediaItemToPlay = await PrepareQueueForPlayback(mediaItem);
+            var mediaItemToPlay = await PrepareQueueForPlayback(new[] { mediaItem });
             await PlayAsCurrent(mediaItemToPlay);
             return mediaItemToPlay;
         }
@@ -136,7 +136,7 @@ namespace MediaManager
         public virtual async Task<IMediaItem> Play(string uri)
         {
             var mediaItem = await MediaExtractor.CreateMediaItem(uri).ConfigureAwait(false);
-            var mediaItemToPlay = await PrepareQueueForPlayback(mediaItem);
+            var mediaItemToPlay = await PrepareQueueForPlayback(new[] { mediaItem });
 
             await PlayAsCurrent(mediaItemToPlay);
             return mediaItem;
@@ -144,7 +144,7 @@ namespace MediaManager
 
         public virtual async Task<IMediaItem> Play(IEnumerable<IMediaItem> items, int? index = null)
         {
-            var mediaItemToPlay = await PrepareQueueForPlayback(items.ToArray());
+            var mediaItemToPlay = await PrepareQueueForPlayback(items.ToArray(), index);
 
             await PlayAsCurrent(mediaItemToPlay);
             return mediaItemToPlay;
@@ -167,7 +167,7 @@ namespace MediaManager
         public virtual async Task<IMediaItem> Play(FileInfo file)
         {
             var mediaItem = await MediaExtractor.CreateMediaItem(file).ConfigureAwait(false);
-            var mediaItemToPlay = await PrepareQueueForPlayback(mediaItem);
+            var mediaItemToPlay = await PrepareQueueForPlayback(new[] { mediaItem });
 
             await PlayAsCurrent(mediaItemToPlay);
             return mediaItem;
@@ -191,7 +191,7 @@ namespace MediaManager
             await MediaPlayer.Play(mediaItem);
         }
 
-        public virtual Task<IMediaItem> PrepareQueueForPlayback(params IMediaItem[] items)
+        public virtual Task<IMediaItem> PrepareQueueForPlayback(IEnumerable<IMediaItem> items, int? index = null)
         {
             if (ClearQueueOnPlay)
             {
@@ -201,6 +201,11 @@ namespace MediaManager
             foreach (var item in items)
             {
                 MediaQueue.Add(item);
+            }
+
+            if (index.HasValue)
+            {
+                MediaQueue.CurrentIndex = index.Value;
             }
 
             return Task.FromResult(MediaQueue.Current);

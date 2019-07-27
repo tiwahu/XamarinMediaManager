@@ -55,9 +55,7 @@ namespace MediaManager
         /// </summary>
         /// <param name="items"></param>
         /// <returns></returns>
-        Task<IMediaItem> Play(IEnumerable<IMediaItem> items);
-
-        Task Play(IEnumerable<IMediaItem> items, int index);
+        Task<IMediaItem> Play(IEnumerable<IMediaItem> items, int? index = null);
 
         /// <summary>
         /// Plays a list of uri's

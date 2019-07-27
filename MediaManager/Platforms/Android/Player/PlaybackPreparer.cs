@@ -53,7 +53,8 @@ namespace MediaManager.Platforms.Android.Player
             _mediaSource.AddMediaSources(mediaItems);
 
             var windowIndex = System.Math.Max(0, System.Math.Min(MediaManager.MediaQueue.CurrentIndex, mediaItems.Count - 1));
-            var positionMs = (long)(MediaManager.MediaQueue.CurrentPosition?.TotalMilliseconds ?? C.TimeUnset);
+            //var positionMs = (long)(MediaManager.MediaQueue.CurrentPosition?.TotalMilliseconds ?? C.TimeUnset);
+            var positionMs = (long)0;
 
             _player.SeekTo(windowIndex, positionMs);
 
@@ -63,7 +64,7 @@ namespace MediaManager.Platforms.Android.Player
             _player.PlayWhenReady = true;
         }
 
-        public void OnPrepareFromMediaId(string mediaId, Bundle p1)
+        public async void OnPrepareFromMediaId(string mediaId, Bundle p1)
         {
             _mediaSource.Clear();
             int windowIndex = 0;
@@ -85,6 +86,20 @@ namespace MediaManager.Platforms.Android.Player
             {
                 // lookup playlist for media id...via MediaManager?
 
+                var items = await MediaSession.MediaBrowserService.Instance?.ItemsForMediaId(mediaId);
+                if (items != null)
+                {
+                    MediaManager.MediaQueue.Clear();
+                    foreach (var item in items)
+                    {
+                        MediaManager.MediaQueue.Add(item);
+                    }
+
+                    foreach (var mediaItem in MediaManager.MediaQueue)
+                    {
+                        _mediaSource.AddMediaSource(mediaItem.ToMediaSource());
+                    }
+                }
             }
 
             _player.Prepare(_mediaSource);
