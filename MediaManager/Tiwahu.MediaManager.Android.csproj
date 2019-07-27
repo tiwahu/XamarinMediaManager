@@ -65,6 +65,7 @@
     <Compile Include="Media\IMediaExtractor.cs" />
     <Compile Include="Media\IMediaItem.cs" />
     <Compile Include="Media\IMediaList.cs" />
+    <Compile Include="Media\MediaExtractorBase.cs" />
     <Compile Include="Media\MediaExtractorExtensions.cs" />
     <Compile Include="Media\MediaItem.cs" />
     <Compile Include="Media\MediaItemEventArgs.cs" />
@@ -95,9 +96,10 @@
     <Compile Include="Platforms\Android\Player\PlaybackController.cs" />
     <Compile Include="Platforms\Android\Player\PlaybackPreparer.cs" />
     <Compile Include="Platforms\Android\Player\PlayerEventListener.cs" />
-    <Compile Include="Platforms\Android\Player\QueueDataAdapter.cs" />
-    <Compile Include="Platforms\Android\Player\QueueNavigator.cs" />
     <Compile Include="Platforms\Android\Player\RatingCallback.cs" />
+    <Compile Include="Platforms\Android\Queue\QueueDataAdapter.cs" />
+    <Compile Include="Platforms\Android\Queue\QueueMediaSourceFactory.cs" />
+    <Compile Include="Platforms\Android\Queue\QueueNavigator.cs" />
     <Compile Include="Platforms\Android\Video\VideoView.cs" />
     <Compile Include="Platforms\Android\Volume\VolumeManager.cs" />
     <Compile Include="Playback\BufferedChangedEventArgs.cs" />
