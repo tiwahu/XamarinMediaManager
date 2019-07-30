@@ -89,7 +89,7 @@ namespace MediaManager.Platforms.Android.Player
             {
                 // lookup playlist for media id...via MediaManager?
 
-                var items = await MediaSession.MediaBrowserService.Instance?.ItemsForMediaId(mediaId);
+                var items = await MediaSession.MediaBrowserService.Instance?.GetMediaItemsAsync(mediaId);
                 if (items != null)
                 {
                     MediaManager.MediaQueue.Clear();

@@ -19,7 +19,8 @@ namespace MediaManager.Platforms.Android.MediaSession
     {
         public static MediaBrowserService Instance { get; private set; }
 
-        public Func<string, Task<IEnumerable<MediaManager.Media.IMediaItem>>> ItemsForMediaId { get; protected set; }
+        public Task<IEnumerable<MediaManager.Media.IMediaItem>> GetMediaItemsAsync(string mediaId) => this.GetMediaItemsForMediaIdAsync(mediaId);
+        protected abstract Task<IEnumerable<MediaManager.Media.IMediaItem>> GetMediaItemsForMediaIdAsync(string mediaId);
 
         protected MediaManagerImplementation MediaManager => CrossMediaManager.Android;
         protected MediaDescriptionAdapter MediaDescriptionAdapter { get; set; }
