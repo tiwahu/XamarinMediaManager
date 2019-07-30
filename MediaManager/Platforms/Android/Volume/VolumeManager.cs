@@ -28,7 +28,10 @@ namespace MediaManager.Platforms.Android.Volume
             set
             {
                 if (CurrentVolume > value)
+                {
                     CurrentVolume = value;
+                    VolumeChanged?.Invoke(this, new VolumeChangedEventArgs(CurrentVolume, Muted));
+                }
             }
         }
 
@@ -45,8 +48,12 @@ namespace MediaManager.Platforms.Android.Volume
                 }
                 else
                     CurrentVolume = preMutedVolume;
+
+                VolumeChanged?.Invoke(this, new VolumeChangedEventArgs(CurrentVolume, Muted));
             }
         }
+
+        public float Balance { get; set; }
 
         public event VolumeChangedEventHandler VolumeChanged;
     }
