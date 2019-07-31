@@ -149,7 +149,7 @@ namespace MediaManager
         public virtual async Task<IMediaItem> Play(string resourceName, Assembly assembly)
         {
             var mediaItem = await MediaExtractor.CreateMediaItem(resourceName, assembly).ConfigureAwait(false);
-            var mediaItemToPlay = await PrepareQueueForPlayback(mediaItem);
+            var mediaItemToPlay = await PrepareQueueForPlayback(new[] { mediaItem });
 
             await PlayAsCurrent(mediaItemToPlay);
             return mediaItem;
