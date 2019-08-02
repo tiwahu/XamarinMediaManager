@@ -16,7 +16,7 @@ using MediaManager.Volume;
 
 namespace MediaManager
 {
-    public abstract class MediaManagerBase : IMediaManager
+    public abstract class MediaManagerBase : NotifyPropertyChangedBase, IMediaManager
     {
         public MediaManagerBase()
         {
@@ -304,8 +304,6 @@ namespace MediaManager
             return seekTo;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public event StateChangedEventHandler StateChanged;
         public event BufferedChangedEventHandler BufferedChanged;
         public event PositionChangedEventHandler PositionChanged;
@@ -314,8 +312,14 @@ namespace MediaManager
         public event MediaItemChangedEventHandler MediaItemChanged;
         public event MediaItemFailedEventHandler MediaItemFailed;
 
+        protected IMediaItem _currentSource;
+
         internal void OnBufferedChanged(object sender, BufferedChangedEventArgs e) => BufferedChanged?.Invoke(sender, e);
-        internal void OnMediaItemChanged(object sender, MediaItemEventArgs e) => MediaItemChanged?.Invoke(sender, e);
+        internal void OnMediaItemChanged(object sender, MediaItemEventArgs e)
+        {
+            if (SetProperty(ref _currentSource, e.MediaItem))
+                MediaItemChanged?.Invoke(sender, e);
+        }
         internal void OnMediaItemFailed(object sender, MediaItemFailedEventArgs e) => MediaItemFailed?.Invoke(sender, e);
         internal void OnMediaItemFinished(object sender, MediaItemEventArgs e) => MediaItemFinished?.Invoke(sender, e);
         internal void OnPositionChanged(object sender, PositionChangedEventArgs e) => PositionChanged?.Invoke(sender, e);
@@ -330,36 +334,23 @@ namespace MediaManager
             NotificationManager?.UpdateNotification();
         }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected TimeSpan _previousPosition = new TimeSpan();
+        protected TimeSpan PreviousPosition
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(storage, value))
+            get => _previousPosition;
+            set
             {
-                return false;
+                if (SetProperty(ref _previousPosition, value))
+                    OnPositionChanged(this, new PositionChangedEventArgs(Position));
             }
-
-            storage = value;
-            OnPropertyChanged(propertyName);
-            return true;
         }
-
-        protected TimeSpan PreviousPosition = new TimeSpan();
 
         protected virtual void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             if (!IsInitialized)
                 return;
 
-            if (PreviousPosition != Position)
-            {
-                PreviousPosition = Position;
-                //OnPropertyChanged(nameof(Position));
-                OnPositionChanged(this, new PositionChangedEventArgs(Position));
-            }
+            PreviousPosition = Position;
         }
 
         public virtual void Dispose()
