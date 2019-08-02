@@ -38,7 +38,7 @@ namespace MediaManager.Platforms.Android.Media
             }
             catch (Exception ex)
             {
-
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
             }
             return mediaItem;
         }

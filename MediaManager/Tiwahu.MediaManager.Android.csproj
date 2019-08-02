@@ -76,6 +76,7 @@
     <Compile Include="Media\MetadataChangedEventArgs.cs" />
     <Compile Include="Notifications\INotificationManager.cs" />
     <Compile Include="Notifications\NotificationManagerBase.cs" />
+    <Compile Include="NotifyPropertyChangedBase.cs" />
     <Compile Include="Platforms\Android\MediaManagerExtensions.cs" />
     <Compile Include="Platforms\Android\MediaManagerImplementation.cs" />
     <Compile Include="Platforms\Android\MediaSession\MediaBrowserConnectionCallback.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Video\VideoAspectMode.cs" />
     <Compile Include="Volume\IVolumeManager.cs" />
     <Compile Include="Volume\VolumeChangedEventArgs.cs" />
+    <Compile Include="Volume\VolumeManagerBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\**\*.xml" SubType="Designer" Generator="MSBuild:UpdateAndroidResources" />
