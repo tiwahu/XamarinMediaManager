@@ -56,8 +56,17 @@
   <ItemGroup>
     <Compile Include="CrossMediaManager.cs" />
     <Compile Include="IMediaManager.cs" />
+    <Compile Include="Library\Album.cs" />
+    <Compile Include="Library\Artist.cs" />
+    <Compile Include="Library\IAlbum.cs" />
+    <Compile Include="Library\IArtist.cs" />
     <Compile Include="Library\IMediaLibrary.cs" />
+    <Compile Include="Library\IPlaylist.cs" />
+    <Compile Include="Library\IRadio.cs" />
     <Compile Include="Library\MediaLibrary.cs" />
+    <Compile Include="Library\Playlist.cs" />
+    <Compile Include="Library\Radio.cs" />
+    <Compile Include="Library\SharingType.cs" />
     <Compile Include="MediaManagerBase.cs" />
     <Compile Include="MediaManagerExtensions.cs" />
     <Compile Include="Media\BtFolderType.cs" />
@@ -109,6 +118,7 @@
     <Compile Include="Playback\RepeatMode.cs" />
     <Compile Include="Playback\StateChangedEventArgs.cs" />
     <Compile Include="Player\IMediaPlayer.cs" />
+    <Compile Include="Player\MediaPlayerBase.cs" />
     <Compile Include="Player\MediaPlayerEventArgs.cs" />
     <Compile Include="Player\MediaPlayerState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
