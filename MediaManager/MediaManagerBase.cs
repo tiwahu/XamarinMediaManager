@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Timers;
 using MediaManager.Media;
@@ -146,18 +144,41 @@ namespace MediaManager
             return mediaItem;
         }
 
-        public virtual async Task<IMediaItem> Play(string resourceName, Assembly assembly)
+        public virtual async Task<IMediaItem> PlayFromAssembly(string resourceName, Assembly assembly = null)
         {
-            var mediaItem = await MediaExtractor.CreateMediaItem(resourceName, assembly).ConfigureAwait(false);
+            var mediaItem = await MediaExtractor.CreateMediaItemFromAssembly(resourceName, assembly).ConfigureAwait(false);
             var mediaItemToPlay = await PrepareQueueForPlayback(new[] { mediaItem });
 
             await PlayAsCurrent(mediaItemToPlay);
             return mediaItem;
         }
 
-        public virtual async Task<IMediaItem> Play(IEnumerable<IMediaItem> items, int? index = null)
+        public virtual async Task<IMediaItem> PlayFromResource(string resourceName)
         {
-            var mediaItemToPlay = await PrepareQueueForPlayback(items.ToArray(), index);
+            var mediaItem = await MediaExtractor.CreateMediaItemFromResource(resourceName).ConfigureAwait(false);
+            var mediaItemToPlay = await PrepareQueueForPlayback(mediaItem);
+
+            await PlayAsCurrent(mediaItemToPlay);
+            return mediaItem;
+        }
+
+        public virtual async Task<IMediaItem> Play(Stream stream, string cacheName)
+        {
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), cacheName);
+            var fileStream = File.Create(path);
+            await stream.CopyToAsync(fileStream);
+            fileStream.Close();
+
+            var mediaItem = await MediaExtractor.CreateMediaItem(path).ConfigureAwait(false);
+            var mediaItemToPlay = await PrepareQueueForPlayback(mediaItem);
+
+            await PlayAsCurrent(mediaItemToPlay);
+            return mediaItem;
+        }
+
+        public virtual async Task<IMediaItem> Play(IEnumerable<IMediaItem> mediaItems, int? index = null)
+        {
+            var mediaItemToPlay = await PrepareQueueForPlayback(mediaItems.ToArray(), index);
 
             await PlayAsCurrent(mediaItemToPlay);
             return mediaItemToPlay;
@@ -165,14 +186,9 @@ namespace MediaManager
 
         public virtual async Task<IMediaItem> Play(IEnumerable<string> items)
         {
-            var mediaItems = new List<IMediaItem>();
-            foreach (var uri in items)
-            {
-                var mediaItem = await MediaExtractor.CreateMediaItem(uri).ConfigureAwait(false);
-                mediaItems.Add(mediaItem);
-            }
+            var mediaItems = await items.CreateMediaItems();
+            var mediaItemToPlay = await PrepareQueueForPlayback(mediaItems);
 
-            var mediaItemToPlay = await PrepareQueueForPlayback(mediaItems.ToArray());
             await PlayAsCurrent(mediaItemToPlay);
             return mediaItemToPlay;
         }
@@ -188,31 +204,31 @@ namespace MediaManager
 
         public virtual async Task<IMediaItem> Play(DirectoryInfo directoryInfo)
         {
-            var mediaItems = new List<IMediaItem>();
-            foreach (var file in directoryInfo.GetFiles())
-            {
-                var mediaItem = await MediaExtractor.CreateMediaItem(file).ConfigureAwait(false);
-                mediaItems.Add(mediaItem);
-            }
-            var mediaItemToPlay = await PrepareQueueForPlayback(mediaItems.ToArray());
+            var mediaItems = await directoryInfo.GetFiles().CreateMediaItems();
+            var mediaItemToPlay = await PrepareQueueForPlayback(mediaItems);
             await PlayAsCurrent(mediaItemToPlay);
             return mediaItemToPlay;
         }
 
         public virtual async Task PlayAsCurrent(IMediaItem mediaItem)
         {
-            if(AutoPlay)
+            if (AutoPlay)
                 await MediaPlayer.Play(mediaItem);
         }
 
-        public virtual Task<IMediaItem> PrepareQueueForPlayback(IEnumerable<IMediaItem> items, int? index = null)
+        public virtual Task<IMediaItem> PrepareQueueForPlayback(IMediaItem mediaItem)
+        {
+            return PrepareQueueForPlayback(new[] { mediaItem });
+        }
+
+        public virtual Task<IMediaItem> PrepareQueueForPlayback(IEnumerable<IMediaItem> mediaItems, int? index = null)
         {
             if (ClearQueueOnPlay)
             {
                 MediaQueue.Clear();
             }
 
-            foreach (var item in items)
+            foreach (var item in mediaItems)
             {
                 MediaQueue.Add(item);
             }

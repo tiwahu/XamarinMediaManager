@@ -12,6 +12,23 @@
 [![NuGet](https://img.shields.io/nuget/v/Plugin.MediaManager.svg?label=NuGet)](https://www.nuget.org/packages/Plugin.MediaManager/)
 [![MyGet](https://img.shields.io/myget/martijn00/v/Plugin.MediaManager.svg)](https://www.myget.org/F/martijn00/api/v3/index.json)
 
+# Support
+
+* Feel free to open an issue. Make sure to use one of the templates!
+* Commercial support is available. Integration with your app or services, samples, feature request, etc. Email: [hello@baseflow.com](mailto:hello@baseflow.com)
+* Powered by: [baseflow.com](https://baseflow.com)
+
+## Installation
+
+Add the [NuGet package](https://www.nuget.org/packages/Plugin.MediaManager/) to all the projects you want to use it in.
+
+* In Visual Studio - Tools > NuGet Package Manager > Manage Packages for Solution
+* Select the Browse tab, search for MediaManager
+* Select Plugin.MediaManager
+* Install into each project within your solution
+
+More information on the [Xamarin Blog](https://blog.xamarin.com/play-audio-and-video-with-the-mediamanager-plugin-for-xamarin/ )
+
 **Platform Support**
 
 |Platform|Supported|Version|Player|
@@ -25,17 +42,6 @@
 |Tizen|Yes|4.0+|MediaPlayer|
 |Windows 10 UWP|Yes|10+|MediaPlayer|
 |Windows WPF|Yes|4.7.1+|MediaPlayer|
-
-## Installation
-
-Add the [NuGet package](https://www.nuget.org/packages/Plugin.MediaManager/) to all the projects you want to use it in.
-
-* In Visual Studio - Tools > NuGet Package Manager > Manage Packages for Solution
-* Select the Browse tab, search for MediaManager
-* Select Plugin.MediaManager
-* Install into each project within your solution
-
-More information on the [Xamarin Blog](https://blog.xamarin.com/play-audio-and-video-with-the-mediamanager-plugin-for-xamarin/ )
 
 ## Usage
 
@@ -90,13 +96,19 @@ await CrossMediaManager.Current.Play(Mp3UrlList);
 ### Other play possibilities
 
 ```csharp
-Task Play(IMediaItem mediaItem);
+Task<IMediaItem> Play(IMediaItem mediaItem);
 Task<IMediaItem> Play(string uri);
-Task Play(IEnumerable<IMediaItem> items);
-Task<IEnumerable<IMediaItem>> Play(IEnumerable<string> items);
+Task<IMediaItem> Play(IEnumerable<IMediaItem> items);
+Task<IMediaItem> Play(IEnumerable<string> items);
 Task<IMediaItem> Play(FileInfo file);
-Task<IEnumerable<IMediaItem>> Play(DirectoryInfo directoryInfo);
+Task<IMediaItem> Play(DirectoryInfo directoryInfo);
+Task<IMediaItem> PlayFromAssembly(string resourceName, Assembly assembly = null);
+Task<IMediaItem> PlayFromResource(string resourceName);
 ```
+
+* Playing from a `File` can be done for example by using the `File` and `Directory` api's. You download a file from the internet and save it somewhere using these .NET api's.
+* When playing from `Assembly` you need to add a media file to a assembly and set the build action to `Embedded resource`.
+* When playing from a `Resource` you should add your media file for example to the `Assets` or `raw` folder on Android, and the `Resources` folder on iOS.
 
 ### Control the player 
 
@@ -120,7 +132,12 @@ await CrossMediaManager.Current.PlayPrevious();
 await CrossMediaManager.Current.PlayNext();
 await CrossMediaManager.Current.PlayPreviousOrSeekToStart();
 await CrossMediaManager.Current.PlayQueueItem(IMediaItem mediaItem);
+await CrossMediaManager.Current.PlayQueueItem(int index);
+```
 
+Extensions:
+
+```csharp
 void ToggleRepeat();
 void ToggleShuffle();
 ```
@@ -137,8 +154,29 @@ TimeSpan Buffered { get; }
 float Speed { get; set; }
 RepeatMode RepeatMode { get; set; }
 ShuffleMode ShuffleMode { get; set; }
+bool ClearQueueOnPlay { get; set; }
+bool AutoPlay { get; set; }
+bool KeepScreenOn { get; set; }
+```
+
+Extensions:
+
+```csharp
 bool IsPlaying();
 bool IsBuffering();
+bool IsPrepared();
+bool IsStopped();
+```
+
+Properties available on CrossMediaManager.Current.MediaPlayer.*
+
+```csharp
+IVideoView VideoView { get; set; }
+bool AutoAttachVideoView { get; set; }
+VideoAspectMode VideoAspect { get; set; }
+bool ShowPlaybackControls { get; set; }
+int VideoHeight { get; }
+int VideoWidth { get; }
 ```
 
 ### Hook into events
@@ -172,6 +210,16 @@ mediaItem.MetadataUpdated += (sender, args) => {
 ```
 
 Alternatively you could also use the `PropertyChanged` event to see updates to the metadata.
+
+You can also get a single frame from a video:
+
+```csharp
+string url = "https://something.com/something.mov";
+var mediaItem = await CrossMediaManager.Current.MediaExtractor.CreateMediaItem(url);
+var image = await CrossMediaManager.Current.MediaExtractor.GetVideoFrame(mediaItem, TimeSpan.FromSeconds(1));
+ImageSource imageSource = image.ToImageSource();
+FormsImage.Source = imageSource;
+```
 
 ### Add Video Player to the UI
 
@@ -294,13 +342,24 @@ Usage:
 CrossMediaManager.Current.Reactive().*
 ```
 
+## FFmpegMediaMetadataRetriever on Android
+
+If you want to use FFmpegMediaMetadataRetriever on Android to extract the metadata you can set to use this extension like this:
+
+```csharp
+CrossMediaManager.Android.MediaExtractor = new FFmpegMediaExtractor();
+```
+
 ## **IMPORTANT**
 **Android:**
 
-* You must request `AccessWifiState`, `Internet`, `ForegroundService` and `WakeLock` permissions
+* This library will automatically request the following permissions: `AccessWifiState`, `AccessNetworkState`, `Internet`, `ForegroundService` and `WakeLock`. You do not need to add them to your AndroidManifest.
 * Your app must target Android SDK v28 or higher
-
-ExoPlayer 2.9.6 and higher use Java 8. You need to set the Dex tool to D8 `<AndroidDexTool>d8</AndroidDexTool>`
+* This library uses ExoPlayer for video playback. This requires that you enable the following
+* Dex tool to D8: `<AndroidDexTool>d8</AndroidDexTool>`
+* Optional enable R8 Linker to make code smaller: `<AndroidLinkTool>r8</AndroidLinkTool>`
+* Aapt2 build tools: `<AndroidUseAapt2>true</AndroidUseAapt2>`
+* Disable multi-dex when using D8 and R8 with AAPT2. Your code should be small enough with those.
 
 **iOS:**
 

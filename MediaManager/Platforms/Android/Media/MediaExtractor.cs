@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.Content.Res;
 using Android.Graphics;
@@ -21,24 +20,15 @@ namespace MediaManager.Platforms.Android.Media
         {
             try
             {
-                var metaRetriever = new MediaMetadataRetriever();
+                var metaRetriever = await CreateMediaRetriever(mediaItem);
 
-                switch (mediaItem.MediaLocation)
-                {
-                    case MediaLocation.Embedded:
-                    case MediaLocation.FileSystem:
-                        await metaRetriever.SetDataSourceAsync(mediaItem.MediaUri);
-                        break;
-                    default:
-                        await metaRetriever.SetDataSourceAsync(mediaItem.MediaUri, RequestHeaders);
-                        break;
-                }
+                mediaItem = await ExtractMediaInfo(metaRetriever, mediaItem).ConfigureAwait(false);
 
-                return await ExtractMediaInfo(metaRetriever, mediaItem).ConfigureAwait(false);
+                metaRetriever.Release();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex.ToString());
+                Console.WriteLine(ex.Message);
             }
             return mediaItem;
         }
@@ -95,33 +85,6 @@ namespace MediaManager.Platforms.Android.Media
             if (!string.IsNullOrEmpty(year) && int.TryParse(year, out var yearResult))
                 mediaItem.Year = yearResult;
 
-            byte[] imageByteArray = null;
-            try
-            {
-                imageByteArray = mediaMetadataRetriever.GetEmbeddedPicture();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-            if (imageByteArray == null)
-            {
-                mediaItem.AlbumArt = GetTrackCover(mediaItem);
-            }
-            else
-            {
-                try
-                {
-                    mediaItem.AlbumArt = await BitmapFactory.DecodeByteArrayAsync(imageByteArray, 0, imageByteArray.Length);
-                }
-                catch (Java.Lang.OutOfMemoryError)
-                {
-                    mediaItem.AlbumArt = null;
-                }
-            }
-
-            mediaItem.IsMetadataExtracted = true;
             return mediaItem;
         }
 
@@ -171,38 +134,106 @@ namespace MediaManager.Platforms.Android.Media
             return System.IO.Path.GetDirectoryName(currentFile.MediaUri);
         }
 
-        public override Task<object> RetrieveMediaItemArt(IMediaItem mediaItem)
+        public override async Task<object> GetMediaItemImage(IMediaItem mediaItem)
         {
-            return null;
+            Bitmap image = null;
+
+            if (!string.IsNullOrEmpty(mediaItem.ArtUri))
+            {
+                try
+                {
+                    var url = new Java.Net.URL(mediaItem.ArtUri);
+                    image = await Task.Run(()=> BitmapFactory.DecodeStreamAsync(url.OpenStream()));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            else
+            {
+                try
+                {
+                    var metaRetriever = await CreateMediaRetriever(mediaItem);
+
+                    byte[] imageByteArray = null;
+                    try
+                    {
+                        imageByteArray = metaRetriever.GetEmbeddedPicture();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+
+                    if (imageByteArray == null)
+                    {
+                        image = GetTrackCover(mediaItem);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            image = await BitmapFactory.DecodeByteArrayAsync(imageByteArray, 0, imageByteArray.Length);
+                        }
+                        catch (Java.Lang.OutOfMemoryError)
+                        {
+                            mediaItem.AlbumArt = null;
+                        }
+                    }
+
+                    metaRetriever.Release();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            mediaItem.AlbumArt = image;
+            return image;
         }
 
         public override async Task<object> GetVideoFrame(IMediaItem mediaItem, TimeSpan timeFromStart)
         {
             try
             {
+                var metaRetriever = await CreateMediaRetriever(mediaItem);
 
-                var metaRetriever = new MediaMetadataRetriever();
-
-                switch (mediaItem.MediaLocation)
-                {
-                    case MediaLocation.Embedded:
-                    case MediaLocation.FileSystem:
-                        await metaRetriever.SetDataSourceAsync(mediaItem.MediaUri);
-                        break;
-                    default:
-                        await metaRetriever.SetDataSourceAsync(mediaItem.MediaUri, RequestHeaders);
-                        break;
-                }
                 var bitmap = metaRetriever.GetFrameAtTime((long)timeFromStart.TotalMilliseconds);
 
                 metaRetriever.Release();
                 return bitmap;
             }
-            catch
+            catch (Exception ex)
             {
-
+                Console.WriteLine(ex.Message);
             }
             return null;
+        }
+
+        protected override async Task<string> GetResourcePath(string resourceName)
+        {
+            string path = null;
+
+            using (var stream = MediaManager.Context.Assets.Open(resourceName))
+            {
+                path = await CopyResourceStreamToFile(stream, "AndroidResources", resourceName).ConfigureAwait(false);
+            }
+
+            return path;
+        }
+
+        protected virtual async Task<MediaMetadataRetriever> CreateMediaRetriever(IMediaItem mediaItem)
+        {
+            var metaRetriever = new MediaMetadataRetriever();
+
+            if (mediaItem.MediaLocation.IsLocal())
+                await metaRetriever.SetDataSourceAsync(mediaItem.MediaUri);
+            else
+                await metaRetriever.SetDataSourceAsync(mediaItem.MediaUri, RequestHeaders);
+
+            return metaRetriever;
         }
     }
 }

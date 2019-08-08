@@ -21,6 +21,7 @@ using MediaManager.Volume;
 [assembly: UsesPermission(Android.Manifest.Permission.AccessNetworkState)]
 [assembly: UsesPermission(Android.Manifest.Permission.AccessWifiState)]
 [assembly: UsesPermission(Android.Manifest.Permission.ForegroundService)]
+[assembly: UsesPermission(Android.Manifest.Permission.WakeLock)]
 namespace MediaManager
 {
     [global::Android.Runtime.Preserve(AllMembers = true)]
@@ -347,9 +348,47 @@ namespace MediaManager
             }
             set
             {
-                if(AndroidMediaPlayer.PlayerView != null)
+                if (AndroidMediaPlayer.PlayerView != null)
                     AndroidMediaPlayer.PlayerView.KeepScreenOn = value;
             }
+        }
+
+        public async Task<bool> HandleIntent(Intent intent)
+        {
+            var action = intent.Action;
+            var type = intent.Type;
+
+            if (action == Intent.ActionSend)
+            {
+                string path = "";
+
+                if (type.StartsWith("video/") || type.StartsWith("audio/"))
+                {
+                    var receiveUri = intent.GetParcelableExtra(Intent.ExtraStream) as global::Android.Net.Uri;
+                    path = receiveUri.ToString();
+                }
+                if (!string.IsNullOrEmpty(path))
+                {
+                    await Play(path);
+                    return true;
+                }
+            }
+            else if (action == Intent.ActionSendMultiple)
+            {
+                IEnumerable<string> mediaUrls = null;
+
+                if (type.StartsWith("video/") || type.StartsWith("audio/"))
+                {
+                    var receiveUris = intent.GetParcelableArrayListExtra(Intent.ExtraStream);
+                    mediaUrls = receiveUris.Cast<global::Android.Net.Uri>().Select(x => x.ToString());
+                }
+                if (mediaUrls != null)
+                {
+                    await Play(mediaUrls);
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
-using Android.Runtime;
 using Android.Support.V4.Media.Session;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.Ext.Mediasession;
@@ -23,29 +22,12 @@ using MediaManager.Video;
 
 namespace MediaManager.Platforms.Android.Player
 {
-    public class AndroidMediaPlayer : Java.Lang.Object, IMediaPlayer<SimpleExoPlayer, VideoView>
+    public class AndroidMediaPlayer : MediaPlayerBase, IMediaPlayer<SimpleExoPlayer, VideoView>
     {
-        public AndroidMediaPlayer()
-        {
-        }
-
-        protected AndroidMediaPlayer(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
-        {
-        }
-
         protected MediaManagerImplementation MediaManager => CrossMediaManager.Android;
-
         protected Dictionary<string, string> RequestHeaders => MediaManager.RequestHeaders;
-
-        public bool AutoAttachVideoView { get; set; } = true;
-
-        public VideoAspectMode VideoAspect { get; set; }
-        public bool ShowPlaybackControls { get; set; } = true;
-
-        public int VideoHeight => 0;
-        public int VideoWidth => 0;
-
         protected Context Context => MediaManager.Context;
+        protected MediaSessionCompat MediaSession => MediaManager.MediaSession;
 
         protected string UserAgent { get; set; }
         protected DefaultHttpDataSourceFactory HttpDataSourceFactory { get; set; }
@@ -84,7 +66,7 @@ namespace MediaManager.Platforms.Android.Player
         public VideoView PlayerView => VideoView as VideoView;
 
         private IVideoView _videoView;
-        public IVideoView VideoView
+        public override IVideoView VideoView
         {
             get => _videoView;
             set
@@ -103,10 +85,8 @@ namespace MediaManager.Platforms.Android.Player
 
         protected int lastWindowIndex = 0;
 
-        public MediaSessionCompat MediaSession => MediaManager.MediaSession;
-
-        public event BeforePlayingEventHandler BeforePlaying;
-        public event AfterPlayingEventHandler AfterPlaying;
+        public override event BeforePlayingEventHandler BeforePlaying;
+        public override event AfterPlayingEventHandler AfterPlaying;
 
         protected virtual void Initialize()
         {
@@ -125,6 +105,7 @@ namespace MediaManager.Platforms.Android.Player
             SsChunkSourceFactory = new DefaultSsChunkSource.Factory(DataSourceFactory);
 
             Player = ExoPlayerFactory.NewSimpleInstance(Context);
+            Player.VideoSizeChanged += Player_VideoSizeChanged;
 
             var audioAttributes = new Com.Google.Android.Exoplayer2.Audio.AudioAttributes.Builder()
              .SetUsage(C.UsageMedia)
@@ -196,6 +177,7 @@ namespace MediaManager.Platforms.Android.Player
                             {
                                 // jumped more than one window index
                             }*/
+                            //TODO: Use SetProperty for this
                             if (currentWindowIndex != lastWindowIndex)
                             {
                                 MediaManager.OnMediaItemFinished(this, new MediaItemEventArgs(MediaManager.MediaQueue.ElementAtOrDefault(lastWindowIndex)));
@@ -218,6 +200,12 @@ namespace MediaManager.Platforms.Android.Player
 
             if (PlayerView != null && PlayerView.Player == null)
                 PlayerView.Player = Player;
+        }
+
+        private void Player_VideoSizeChanged(object sender, Com.Google.Android.Exoplayer2.Video.VideoSizeChangedEventArgs e)
+        {
+            VideoWidth = e.Width;
+            VideoHeight = e.Height;
         }
 
         public virtual void UpdateRequestHeaders()
@@ -254,7 +242,7 @@ namespace MediaManager.Platforms.Android.Player
             MediaSessionConnector.SetPlayer(Player, PlaybackPreparer, null);
         }
 
-        public async Task Play(IMediaItem mediaItem)
+        public override async Task Play(IMediaItem mediaItem)
         {
             BeforePlaying?.Invoke(this, new MediaPlayerEventArgs(mediaItem, this));
 
@@ -266,25 +254,25 @@ namespace MediaManager.Platforms.Android.Player
             AfterPlaying?.Invoke(this, new MediaPlayerEventArgs(mediaItem, this));
         }
 
-        public Task Play()
+        public override Task Play()
         {
             Player.PlayWhenReady = true;
             return Task.CompletedTask;
         }
 
-        public Task Pause()
+        public override Task Pause()
         {
             Player.PlayWhenReady = false;
             return Task.CompletedTask;
         }
 
-        public Task SeekTo(TimeSpan position)
+        public override Task SeekTo(TimeSpan position)
         {
             Player.SeekTo((long)position.TotalMilliseconds);
             return Task.CompletedTask;
         }
 
-        public Task Stop()
+        public override Task Stop()
         {
             Player.Stop();
             return Task.CompletedTask;
@@ -294,12 +282,11 @@ namespace MediaManager.Platforms.Android.Player
         {
             if (Player != null)
             {
+                Player.VideoSizeChanged -= Player_VideoSizeChanged;
                 Player.RemoveListener(PlayerEventListener);
                 Player.Release();
                 Player = null;
             }
-
-            base.Dispose(disposing);
         }
     }
 }

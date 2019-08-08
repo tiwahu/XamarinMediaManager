@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using MediaManager.Media;
 using MediaManager.Video;
@@ -19,7 +20,7 @@ namespace MediaManager.Player
         TPlayer Player { get; set; }
     }
 
-    public interface IMediaPlayer : IDisposable
+    public interface IMediaPlayer : IDisposable, INotifyPropertyChanged
     {
 
         //TODO: Maybe introduce a source property to find the current playing item
@@ -33,9 +34,11 @@ namespace MediaManager.Player
 
         bool ShowPlaybackControls { get; set; }
 
+        int VideoWidth { get; }
+
         int VideoHeight { get; }
 
-        int VideoWidth { get; }
+        float VideoAspectRatio { get; }
 
         /// <summary>
         /// Adds MediaItem to the Queue and starts playing
