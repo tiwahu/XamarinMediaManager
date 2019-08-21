@@ -6,6 +6,7 @@ using Android.App;
 using Android.Content;
 using Android.Support.V4.Media.Session;
 using Com.Google.Android.Exoplayer2;
+using MediaManager.Library;
 using MediaManager.Media;
 using MediaManager.Notifications;
 using MediaManager.Platforms.Android.Media;
@@ -29,6 +30,7 @@ namespace MediaManager
     {
         public MediaManagerImplementation()
         {
+            IsInitialized = false;
         }
 
         private Context _context = Application.Context;
@@ -355,6 +357,9 @@ namespace MediaManager
 
         public async Task<bool> HandleIntent(Intent intent)
         {
+            if (intent == null)
+                return false;
+
             var action = intent.Action;
             var type = intent.Type;
 
@@ -364,8 +369,8 @@ namespace MediaManager
 
                 if (type.StartsWith("video/") || type.StartsWith("audio/"))
                 {
-                    var receiveUri = intent.GetParcelableExtra(Intent.ExtraStream) as global::Android.Net.Uri;
-                    path = receiveUri.ToString();
+                    var receivedUri = intent.GetParcelableExtra(Intent.ExtraStream) as global::Android.Net.Uri;
+                    path = receivedUri?.ToString();
                 }
                 if (!string.IsNullOrEmpty(path))
                 {
@@ -379,8 +384,8 @@ namespace MediaManager
 
                 if (type.StartsWith("video/") || type.StartsWith("audio/"))
                 {
-                    var receiveUris = intent.GetParcelableArrayListExtra(Intent.ExtraStream);
-                    mediaUrls = receiveUris.Cast<global::Android.Net.Uri>().Select(x => x.ToString());
+                    var receivedUris = intent.GetParcelableArrayListExtra(Intent.ExtraStream);
+                    mediaUrls = receivedUris.Cast<global::Android.Net.Uri>().Select(x => x?.ToString());
                 }
                 if (mediaUrls != null)
                 {

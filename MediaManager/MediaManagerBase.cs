@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Timers;
+using MediaManager.Library;
 using MediaManager.Media;
 using MediaManager.Notifications;
 using MediaManager.Playback;
@@ -23,7 +24,7 @@ namespace MediaManager
             Timer.Start();
         }
 
-        public bool IsInitialized { get; protected set; }
+        public bool IsInitialized { get; protected set; } = true;
 
         public Timer Timer { get; protected set; } = new Timer(1000);
 

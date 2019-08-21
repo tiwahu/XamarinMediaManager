@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using MediaManager.Library;
 using MediaManager.Media;
 using MediaManager.Notifications;
 using MediaManager.Playback;
@@ -22,7 +23,7 @@ namespace MediaManager
         IMediaPlayer MediaPlayer { get; set; }
 
         //TODO: Make browsable library
-        //IMediaLibrary MediaLibrary { get; set; }
+        //IMediaLibrary Library { get; set; }
 
         /// <summary>
         /// Gets or sets the request headers.

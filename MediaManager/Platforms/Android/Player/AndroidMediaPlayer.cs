@@ -10,8 +10,10 @@ using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Source.Dash;
 using Com.Google.Android.Exoplayer2.Source.Smoothstreaming;
 using Com.Google.Android.Exoplayer2.Trackselection;
+using Com.Google.Android.Exoplayer2.UI;
 using Com.Google.Android.Exoplayer2.Upstream;
 using Com.Google.Android.Exoplayer2.Util;
+using MediaManager.Library;
 using MediaManager.Media;
 using MediaManager.Platforms.Android.Media;
 using MediaManager.Platforms.Android.MediaSession;
@@ -79,8 +81,50 @@ namespace MediaManager.Platforms.Android.Player
                     //Use private field to prevent calling Initialize here
                     if (_player != null)
                         PlayerView.Player = Player;
+
+                    UpdateVideoView();
                 }
             }
+        }
+
+        public object PlaceholderImage
+        {
+            get => PlayerView?.DefaultArtwork;
+            set
+            {
+                if (PlayerView != null && value is global::Android.Graphics.Drawables.Drawable drawable)
+                    PlayerView.DefaultArtwork = drawable;
+            }
+        }
+
+        public override void UpdateVideoAspect(VideoAspectMode videoAspectMode)
+        {
+            if (PlayerView == null)
+                return;
+
+            switch (videoAspectMode)
+            {
+                case VideoAspectMode.None:
+                    PlayerView.ResizeMode = AspectRatioFrameLayout.ResizeModeZoom;
+                    break;
+                case VideoAspectMode.AspectFit:
+                    PlayerView.ResizeMode = AspectRatioFrameLayout.ResizeModeFit;
+                    break;
+                case VideoAspectMode.AspectFill:
+                    PlayerView.ResizeMode = AspectRatioFrameLayout.ResizeModeFill;
+                    break;
+                default:
+                    PlayerView.ResizeMode = AspectRatioFrameLayout.ResizeModeZoom;
+                    break;
+            }
+        }
+
+        public override void UpdateShowPlaybackControls(bool showPlaybackControls)
+        {
+            if (PlayerView == null)
+                return;
+
+            PlayerView.UseController = showPlaybackControls;
         }
 
         protected int lastWindowIndex = 0;

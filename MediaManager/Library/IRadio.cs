@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using MediaManager.Media;
 
 namespace MediaManager.Library
 {
-    public interface IRadio : IList<IMediaItem>, INotifyCollectionChanged, INotifyPropertyChanged
+    public interface IRadio : IList<IMediaItem>, INotifyCollectionChanged, INotifyPropertyChanged, IContentItem
     {
         void Move(int oldIndex, int newIndex);
-
-        string RadioId { get; set; }
 
         string Uri { get; set; }
 

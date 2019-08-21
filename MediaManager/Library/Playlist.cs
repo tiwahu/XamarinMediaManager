@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using MediaManager.Media;
+using System.Linq;
 
 namespace MediaManager.Library
 {
     public class Playlist : ObservableCollection<IMediaItem>, IPlaylist
     {
-        private string _playlistId = Guid.NewGuid().ToString();
+        public Playlist()
+        {
+        }
+
+        private string _id = Guid.NewGuid().ToString();
         private string _uri;
         private string _title;
         private string _description;
@@ -21,10 +25,10 @@ namespace MediaManager.Library
         private SharingType _sharingType = SharingType.Public;
         private DownloadStatus _downloadStatus = DownloadStatus.NotDownloaded;
 
-        public string PlaylistId
+        public string Id
         {
-            get => _playlistId;
-            set => _playlistId = value;
+            get => _id;
+            set => _id = value;
         }
         public string Uri
         {
@@ -78,7 +82,17 @@ namespace MediaManager.Library
         }
         public TimeSpan TotalTime
         {
-            get => _totalTime;
+            get
+            {
+                if (_totalTime == null)
+                {
+                    //Return the total of all media items when no value is set
+                    var totalTime = new TimeSpan();
+                    Items.Select(x => totalTime.Add(x.Duration));
+                    return totalTime;
+                }
+                return _totalTime;
+            }
             set => _totalTime = value;
         }
         public SharingType SharingType

@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using MediaManager.Media;
 
 namespace MediaManager.Library
 {
-    public interface IAlbum : IList<IMediaItem>
+    public interface IAlbum : IList<IMediaItem>, IContentItem
     {
-        string AlbumId { get; set; }
-
         string Title { get; set; }
 
         string Description { get; set; }

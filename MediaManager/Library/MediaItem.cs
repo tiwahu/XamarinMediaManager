@@ -1,9 +1,14 @@
 ﻿using System;
+using MediaManager.Media;
 
-namespace MediaManager.Media
+namespace MediaManager.Library
 {
     public class MediaItem : NotifyPropertyChangedBase, IMediaItem
     {
+        public MediaItem()
+        {
+        }
+
         public MediaItem(string uri)
         {
             if (string.IsNullOrEmpty(uri))
@@ -12,6 +17,12 @@ namespace MediaManager.Media
         }
 
         public event MetadataUpdatedEventHandler MetadataUpdated;
+
+        public string Id
+        {
+            get => _id;
+            set => SetProperty(ref _id, value);
+        }
 
         public string Advertisement
         {
@@ -128,11 +139,6 @@ namespace MediaManager.Media
             get => _genre;
             set => SetProperty(ref _genre, value);
         }
-        public string MediaId
-        {
-            get => _mediaId;
-            set => SetProperty(ref _mediaId, value);
-        }
         public string MediaUri
         {
             get => _mediaUri;
@@ -202,7 +208,7 @@ namespace MediaManager.Media
         private object _rating;
         private int _numTracks;
         private string _mediaUri;
-        private string _mediaId = Guid.NewGuid().ToString();
+        private string _id = Guid.NewGuid().ToString();
         private string _genre;
         private object _extras;
         private TimeSpan _duration;

@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using MediaManager.Media;
 
 namespace MediaManager.Library
 {
     public class Artist : IArtist
     {
-        public string ArtistId { get; set; } = Guid.NewGuid().ToString();
+        public Artist()
+        {
+        }
+
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; }
         public string Biography { get; set; }
         public string Tags { get; set; }

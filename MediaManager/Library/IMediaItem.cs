@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using MediaManager.Media;
 
-namespace MediaManager.Media
+namespace MediaManager.Library
 {
     public delegate void MetadataUpdatedEventHandler(object sender, MetadataChangedEventArgs e);
 
-    public interface IMediaItem : INotifyPropertyChanged
+    public interface IMediaItem : INotifyPropertyChanged, IContentItem
     {
         /// <summary>
         /// Gets or sets a value indicating whether [metadata extracted].
@@ -21,12 +22,12 @@ namespace MediaManager.Media
         event MetadataUpdatedEventHandler MetadataUpdated;
 
         /// <summary>
-        /// The metadata key for a int typed value to retrieve the information about whether the media is an advertisement.
+        /// The metadata for a int typed value to retrieve the information about whether the media is an advertisement.
         /// </summary>
         string Advertisement { get; set; }
 
         /// <summary>
-        /// The metadata key for a CharSequence or string typed value to retrieve the information about the Album title for the media.
+        /// The metadata for the Album title.
         /// </summary>
         string Album { get; set; }
 
@@ -36,7 +37,7 @@ namespace MediaManager.Media
         object AlbumArt { get; set; }
 
         /// <summary>
-        /// The metadata key for a CharSequence or string typed value to retrieve the information about the artist for the Album of the media's original source.
+        /// The metadata for the artist for the Album of the media's original source.
         /// </summary>
         string AlbumArtist { get; set; }
 
@@ -65,6 +66,7 @@ namespace MediaManager.Media
         /// </summary>
         string Author { get; set; }
 
+        //TODO: Probably remove this one
         /// <summary>
         /// The metadata key for a int typed value to retrieve the information about the bluetooth folder type of the media specified in the section 6.10.2.2 of the Bluetooth AVRCP 1.5.
         /// </summary>
@@ -80,6 +82,7 @@ namespace MediaManager.Media
         /// </summary>
         string Composer { get; set; }
 
+        //TODO: Make it a DateTime
         /// <summary>
         /// The metadata key for a CharSequence or string typed value to retrieve the information about the date the media was created or published.
         /// </summary>
@@ -134,11 +137,6 @@ namespace MediaManager.Media
         /// The metadata key for a CharSequence or string typed value to retrieve the information about the genre of the media.
         /// </summary>
         string Genre { get; set; }
-
-        /// <summary>
-        /// The metadata key for a CharSequence or string typed value to retrieve the information about the media ID of the content.
-        /// </summary>
-        string MediaId { get; set; }
 
         /// <summary>
         /// The metadata key for a CharSequence or string typed value to retrieve the information about the Uri of the content.

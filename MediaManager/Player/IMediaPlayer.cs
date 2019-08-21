@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using MediaManager.Media;
+using MediaManager.Library;
 using MediaManager.Video;
 
 namespace MediaManager.Player
@@ -27,6 +27,9 @@ namespace MediaManager.Player
         //IMediaItem Source { get; internal set; }
 
         IVideoView VideoView { get; set; }
+
+        //TODO: See if we can make this cross platform
+        //object PlaceholderImage { get; set; }
 
         bool AutoAttachVideoView { get; set; }
 

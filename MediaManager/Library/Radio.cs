@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using MediaManager.Media;
 
 namespace MediaManager.Library
 {
     public class Radio : ObservableCollection<IMediaItem>, IRadio
     {
-        public string RadioId { get; set; } = Guid.NewGuid().ToString();
+        public Radio()
+        {
+        }
+
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Uri { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

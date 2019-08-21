@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using MediaManager.Library;
 
 namespace MediaManager.Media
 {
@@ -17,6 +18,11 @@ namespace MediaManager.Media
         IList<string> SmoothStreamingSuffixes { get; }
         IList<string> DashSuffixes { get; }
 
+        IList<IMediaExtractorProvider> Providers { get; }
+        IEnumerable<IMediaItemMetadataProvider> MetadataProviders { get; }
+        IEnumerable<IMediaItemImageProvider> ImageProviders { get; }
+        IEnumerable<IMediaItemVideoFrameProvider> VideoFrameProviders { get; }
+
         Task<IMediaItem> CreateMediaItem(string url);
 
         Task<IMediaItem> CreateMediaItemFromAssembly(string resourceName, Assembly assembly = null);
@@ -27,9 +33,9 @@ namespace MediaManager.Media
 
         Task<IMediaItem> UpdateMediaItem(IMediaItem mediaItem);
 
-        Task<IMediaItem> ExtractMetadata(IMediaItem mediaItem);
+        Task<IMediaItem> GetMetadata(IMediaItem mediaItem);
 
-        Task<object> GetMediaItemImage(IMediaItem mediaItem);
+        Task<object> GetMediaImage(IMediaItem mediaItem);
 
         Task<object> GetVideoFrame(IMediaItem mediaItem, TimeSpan timeFromStart);
 
